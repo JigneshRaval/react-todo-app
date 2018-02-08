@@ -1,0 +1,37 @@
+{
+  "name": "minimal-react-boilerplate",
+  "version": "1.0.0",
+  "description": "Minimal React setup using Webpack and Babel",
+  "main": "server.js",
+  "scripts": {
+    "start": "nodemon ./server.js",
+    "webpack": "webpack --watch",
+    "build:webpack": "webpack --config webpack.config.js -p"
+  },
+  "keywords": [
+    "React",
+    "webpack",
+    "Babel"
+  ],
+  "author": "Jignesh Raval",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.16.2",
+    "nedb": "^1.8.0",
+    "react": "^16.2.0",
+    "react-dom": "^16.2.0"
+  },
+  "devDependencies": {
+    "babel-core": "^6.26.0",
+    "babel-loader": "^7.1.2",
+    "babel-preset-env": "^1.6.1",
+    "babel-preset-react": "^6.24.1",
+    "webpack": "^3.10.0"
+  },
+  "babel": {
+    "presets": [
+      "env",
+      "react"
+    ]
+  }
+}

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>The Minimal React Webpack Babel Setup</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="./src/assets/css/bootstrap.min.css" crossorigin="anonymous" />
+
+    <!-- JavaScript -->
+    <script src="./src/assets/js/jquery-3.2.1.js"></script>
+    <script src="./src/assets/js/bootstrap.bundle.min.js"></script>
+
+</head>
+
+<body>
+    <div id="app"></div>
+    <script src="./dist/bundle.js"></script>
+    <script>
+        $(function () {
+            $('body').tooltip({
+                selector: '[data-toggle="tooltip"]'
+            })
+        })
+    </script>
+</body>
+
+</html>
