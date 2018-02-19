@@ -981,6 +981,8 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+// 3. Single Todo item
+// ==============================
 var Todo = function Todo(_ref) {
     var todo = _ref.todo,
         remove = _ref.remove,
@@ -995,25 +997,31 @@ var Todo = function Todo(_ref) {
             { href: '#', 'data-todoid': todo._id, 'data-toggle': 'tooltip', 'data-placement': 'top', title: 'Click on item to delete.' },
             todo.title,
             ' =  ',
-            todo.status
+            _react2.default.createElement(
+                'span',
+                { className: 'badge badge-primary' },
+                todo.status
+            )
         ),
         _react2.default.createElement(
             'button',
-            { onClick: function onClick() {
-                    edit(todo._id);
-                } },
-            'Edit'
-        ),
-        _react2.default.createElement(
-            'button',
-            { onClick: function onClick() {
+            { className: 'btn btn-danger float-right', onClick: function onClick() {
                     remove(todo._id);
                 } },
             'Delete'
+        ),
+        _react2.default.createElement(
+            'button',
+            { className: 'btn btn-primary float-right', onClick: function onClick() {
+                    edit(todo._id);
+                } },
+            'Edit'
         )
     );
 };
 
+// 2. Todo List
+// ==============================
 var TodoList = function TodoList(_ref2) {
     var todos = _ref2.todos,
         remove = _ref2.remove,
@@ -1030,6 +1038,9 @@ var TodoList = function TodoList(_ref2) {
         todoNode
     );
 };
+
+// 1. Main Todo App
+// ==============================
 
 var TodoApp = exports.TodoApp = function (_React$Component) {
     _inherits(TodoApp, _React$Component);
@@ -1052,7 +1063,7 @@ var TodoApp = exports.TodoApp = function (_React$Component) {
         value: function componentDidMount() {
             var _this2 = this;
 
-            // Make HTTP reques with Axios
+            // Render all Todo items on component render
             fetch('./api/todos').then(function (response) {
                 if (response.status !== 200) {
                     console.log('Looks like there was a problem. Status Code: ' + response.status);
@@ -1067,31 +1078,57 @@ var TodoApp = exports.TodoApp = function (_React$Component) {
                 console.log('Fetch Error :-S', err);
             });
         }
+
+        // Add Todo item
+
     }, {
         key: 'addTodo',
-        value: function addTodo(value) {
+        value: function addTodo(value, id) {
             var _this3 = this;
 
-            // Update data
-            fetch('./api/addTodo', {
-                method: 'POST',
-                body: JSON.stringify({ title: value, status: 'pending' }),
-                mode: 'cors',
-                redirect: 'follow',
-                headers: new Headers({
-                    'Content-Type': 'application/json'
-                    // "Content-type": "application/x-www-form-urlencoded; charset=UTF-8"
-                })
-            }).then(function (response) {
-                return response.json();
-            }).then(function (data) {
-                console.log("data: ", data);
-                _this3.state.data.push(data);
-                _this3.setState({ data: _this3.state.data });
-            }).catch(function (err) {
-                console.log('Todo added to database.');
-            });
+            if (id) {
+                // Update data
+                fetch('./api/updateTodo', {
+                    method: 'PUT',
+                    body: JSON.stringify({ title: value, status: 'pending', id: id }),
+                    mode: 'cors',
+                    redirect: 'follow',
+                    headers: new Headers({
+                        'Content-Type': 'application/json'
+                        // "Content-type": "application/x-www-form-urlencoded; charset=UTF-8"
+                    })
+                }).then(function (response) {
+                    return response.json();
+                }).then(function (data) {
+                    console.log("EDIT data: ", data);
+                    _this3.setState({ data: _this3.state.data });
+                }).catch(function (err) {
+                    console.log('Error in adding TODO to database.');
+                });
+            } else {
+                fetch('./api/addTodo', {
+                    method: 'POST',
+                    body: JSON.stringify({ title: value, status: 'pending' }),
+                    mode: 'cors',
+                    redirect: 'follow',
+                    headers: new Headers({
+                        'Content-Type': 'application/json'
+                        // "Content-type": "application/x-www-form-urlencoded; charset=UTF-8"
+                    })
+                }).then(function (response) {
+                    return response.json();
+                }).then(function (data) {
+                    console.log("ADD data: ", data);
+                    _this3.state.data.push(data);
+                    _this3.setState({ data: _this3.state.data });
+                }).catch(function (err) {
+                    console.log('Error in adding TODO to database.');
+                });
+            }
         }
+
+        // Edit Todo item
+
     }, {
         key: 'editTodo',
         value: function editTodo(todoId) {
@@ -1100,39 +1137,13 @@ var TodoApp = exports.TodoApp = function (_React$Component) {
             });
 
             this.setState({ isEditing: true, editTodo: remainder[0] });
-            console.log("remainder :", remainder);
+        }
 
-            /* // Update data
-            fetch('./api/updateTodo', {
-                method: 'PUT',
-                body: JSON.stringify({ id: todoId, title: value, status: 'pending' }),
-                mode: 'cors',
-                redirect: 'follow',
-                headers: new Headers({
-                    'Content-Type': 'application/json'
-                    // "Content-type": "application/x-www-form-urlencoded; charset=UTF-8"
-                })
-            })
-                .then((response) => response.json())
-                .then((data) => {
-                    console.log("data: ", data);
-                    //this.state.data.push(data);
-                    //this.setState({ data: this.state.data });
-                })
-                .catch((err) => {
-                    console.log('Todo added to database.');
-                }); */
-        }
-    }, {
-        key: 'handleInputChange',
-        value: function handleInputChange(newValue) {
-            console.log(newValue);
-        }
-        // Handle remove
+        // Remove Todo item
 
     }, {
-        key: 'handleRemove',
-        value: function handleRemove(id) {
+        key: 'removeTodo',
+        value: function removeTodo(id) {
             var _this4 = this;
 
             // Filter all todos except the one to be removed
@@ -1168,10 +1179,10 @@ var TodoApp = exports.TodoApp = function (_React$Component) {
                     'div',
                     { className: 'container' },
                     _react2.default.createElement(_todoTitle.Title, { todoCount: this.state.data.length }),
-                    _react2.default.createElement(_todoForm2.default, { isEditing: this.state.isEditing, handleInputChange: this.handleInputChange.bind(), editTodo: this.state.editTodo, addTodo: this.addTodo.bind(this) }),
+                    _react2.default.createElement(_todoForm2.default, { isEditing: this.state.isEditing, editTodo: this.state.editTodo, addTodo: this.addTodo.bind(this) }),
                     _react2.default.createElement(TodoList, {
                         todos: this.state.data,
-                        remove: this.handleRemove.bind(this),
+                        remove: this.removeTodo.bind(this),
                         edit: this.editTodo.bind(this)
                     })
                 )
@@ -18581,9 +18592,8 @@ var Title = exports.Title = function Title(_ref) {
             _react2.default.createElement(
                 'h1',
                 null,
-                'to-do (',
-                todoCount,
-                ')'
+                'Todo : ',
+                todoCount
             )
         )
     );
@@ -18637,11 +18647,27 @@ var TodoForm = function (_React$Component) {
             });
         }
     }, {
+        key: 'componentWillReceiveProps',
+        value: function componentWillReceiveProps(nextProps) {
+            console.log("0 :", this.state.value);
+            console.log("1 :", this.props.editTodo.title);
+            console.log("2 Next Prop:", nextProps.editTodo.title);
+            if (this.props.editTodo.title === nextProps.editTodo.title) {} else {
+                this.setState({ value: nextProps.editTodo.title });
+            }
+            console.log("3 :", this.state.value);
+        }
+    }, {
         key: 'handleSubmit',
         value: function handleSubmit(event) {
             event.preventDefault();
             var newTodoTitle = event.target.querySelector('input');
-            this.props.addTodo(this.input.value);
+
+            if (this.props.isEditing) {
+                this.props.addTodo(newTodoTitle.value, this.props.editTodo._id);
+            } else {
+                this.props.addTodo(this.state.value, '');
+            }
             newTodoTitle.value = '';
         }
     }, {

@@ -15,10 +15,27 @@ export default class TodoForm extends React.Component {
         })
     }
 
+    componentWillReceiveProps(nextProps) {
+        console.log("0 :", this.state.value);
+        console.log("1 :", this.props.editTodo.title);
+        console.log("2 Next Prop:", nextProps.editTodo.title);
+        if (this.props.editTodo.title === nextProps.editTodo.title) {
+
+        } else {
+            this.setState({ value: nextProps.editTodo.title });
+        }
+        console.log("3 :", this.state.value);
+    }
+
     handleSubmit(event) {
         event.preventDefault();
         let newTodoTitle = event.target.querySelector('input');
-        this.props.addTodo(this.input.value);
+
+        if (this.props.isEditing) {
+            this.props.addTodo(newTodoTitle.value, this.props.editTodo._id);
+        } else {
+            this.props.addTodo(this.state.value, '');
+        }
         newTodoTitle.value = '';
     }
 
@@ -34,7 +51,7 @@ export default class TodoForm extends React.Component {
                 <input className="form-control col-md-12 add-form"
                     ref={(input) => this.input = input}
                     value={this.state.value}
-                    onChange={this.handleChange.bind(this)}/>
+                    onChange={this.handleChange.bind(this)} />
                 <br />
             </form>
         );

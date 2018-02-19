@@ -50,21 +50,27 @@ app.post('/api/addTodo', function (req, res) {
     });
 });
 
+app.put('/api/updateTodo', function (req, res) {
+    console.log("Update Todo item :", req.body, req.params);
+    //res.status(200).send({ message: 'Item updated successfully in database.' });
+
+    // Set an existing field's value
+    db.update({ _id: req.body.id }, { $set: { title: req.body.title } }, { multi: false }, function (err, numReplaced) {
+        db.find({}, function (err, docs) {
+            if (err) {
+                return err;
+            }
+            res.status(200).send(docs);
+        });
+    });
+});
+
 app.delete('/api/removeTodo', function (req, res) {
     console.log("Delete Todo item :", req.body, req.params);
     db.remove({ _id: req.body.id }, {}, function (err, numRemoved) {
         console.log('Item removed', numRemoved);
         res.status(200).send({ message: 'Item removed successfully from database.' });
     });
-});
-
-app.put('/api/updateTodo', function (req, res) {
-    console.log("Update Todo item :", req.body, req.params);
-    res.status(200).send({ message: 'Item removed successfully from database.' });
-    // Set an existing field's value
-    /* db.update({ _id: req.body.id }, { $set: { system: 'solar system' } }, { multi: false }, function (err, numReplaced) {
-        res.status(200).send({ message: 'Item removed successfully from database.' });
-    }); */
 });
 
 // Handle 404 Error
