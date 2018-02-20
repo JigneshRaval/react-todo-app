@@ -28,9 +28,23 @@ class TodoForm extends React.Component {
     constructor(props) {
         super(props);
         console.log(props.editTodo.title);
-        this.state = { value: props.editTodo.title };
+        this.state = { value: ' ' };
         this.input;
         this.handleSubmit = this.handleSubmit.bind(this);
+    }
+
+    componentWillReceiveProps(nextProps) {
+        console.log("0 :", this.state.value);
+        console.log("1 :", this.props.editTodo.title);
+        console.log("2 Next Prop:", nextProps.editTodo.title);
+        if (!nextProps.editTodo.title) {
+            this.setState({ value: '' });
+        } else if (this.props.editTodo.title === nextProps.editTodo.title) {
+
+        } else {
+            this.setState({ value: nextProps.editTodo.title });
+        }
+        console.log("3 :", this.state.value);
     }
 
     handleChange(event) {
@@ -41,9 +55,14 @@ class TodoForm extends React.Component {
 
     handleSubmit(event) {
         event.preventDefault();
-        console.log(event.target);
-        let newTodoTitle = event.target.querySelector('input[name="todoTitle"]');
-        this.props.addTodo(this.input.value);
+        let newTodoTitle = event.target.querySelector('input');
+
+        if (this.props.isEditing) {
+            this.props.addTodo(newTodoTitle.value, this.props.editTodo._id);
+        } else {
+            this.props.addTodo(this.state.value, '');
+        }
+
         newTodoTitle.value = '';
     }
 
@@ -77,7 +96,7 @@ const Todo = ({ todo, remove, edit }) => {
     // Each Todo
     return (
         <li className="list-group-item">
-            <a href="#" data-todoid={todo._id} name="todoTitle" data-toggle="tooltip" data-placement="top" title="Click on item to delete.">{todo.title} =  {todo.status}</a>
+            <a href="#" data-todoid={todo._id} name="todoTitle" data-toggle="tooltip" data-placement="top" title="Click on item to delete.">{todo.title} <span className="badge badge-primary">{todo.status}</span></a>
 
             <button className="btn btn-danger float-right" onClick={() => { remove(todo._id) }}>Delete</button>
             <button className="btn btn-primary float-right" onClick={() => { edit(todo._id) }}>Edit</button>
@@ -117,17 +136,30 @@ class TodoApp extends React.Component {
     }
 
     // Add Todo
-    addTodo(value) {
-        this.state.data.push({ "title": value, "status": "pending", "today": { "$$date": Date.now() }, "_id": randomString(16) });
-        this.setState({ data: this.state.data });
+    addTodo(value, id) {
+        if (id) {
+            this.state.data.find((todo, index) => {
+                if (todo._id === id) {
+                    this.state.data.splice(index, 1, { "title": value, "status": "pending", "today": { "$$date": Date.now() }, "_id": id });
+                }
+            });
+            this.setState({ data: this.state.data });
+
+            // Clear isEditing value to false
+            this.setState({ isEditing: false, editTodo: {} });
+        } else {
+            this.state.data.push({ "title": value, "status": "pending", "today": { "$$date": Date.now() }, "_id": randomString(16) });
+            this.setState({ data: this.state.data });
+        }
+
     }
 
     // Edit Todo
     editTodo(todoId) {
-        const remainder = this.state.data.filter((todo) => {
+        const remainder = this.state.data.find((todo) => {
             if (todo._id === todoId) return todo;
         });
-        this.setState({ isEditing: true, editTodo: remainder[0] });
+        this.setState({ isEditing: true, editTodo: remainder });
     }
 
     // Remove Todo
@@ -139,17 +171,12 @@ class TodoApp extends React.Component {
         this.setState({ data: remainder });
     }
 
-
-    handleInputChange(newValue) {
-        console.log(newValue);
-    }
-
     render() {
         return (
             <main>
                 <div className="container">
                     <Title todoCount={this.state.data.length} />
-                    <TodoForm isEditing={this.state.isEditing} handleInputChange={this.handleInputChange.bind()} editTodo={this.state.editTodo} addTodo={this.addTodo.bind(this)} />
+                    <TodoForm isEditing={this.state.isEditing} editTodo={this.state.editTodo} addTodo={this.addTodo.bind(this)} />
                     <TodoList
                         todos={this.state.data}
                         remove={this.removeTodo.bind(this)}

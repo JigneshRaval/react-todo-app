@@ -16,15 +16,13 @@ export default class TodoForm extends React.Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        console.log("0 :", this.state.value);
-        console.log("1 :", this.props.editTodo.title);
-        console.log("2 Next Prop:", nextProps.editTodo.title);
-        if (this.props.editTodo.title === nextProps.editTodo.title) {
+        if (!nextProps.editTodo.title) {
+            this.setState({ value: '' });
+        } else if (this.props.editTodo.title === nextProps.editTodo.title) {
 
         } else {
             this.setState({ value: nextProps.editTodo.title });
         }
-        console.log("3 :", this.state.value);
     }
 
     handleSubmit(event) {

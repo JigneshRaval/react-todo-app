@@ -986,20 +986,25 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 var Todo = function Todo(_ref) {
     var todo = _ref.todo,
         remove = _ref.remove,
-        edit = _ref.edit;
+        edit = _ref.edit,
+        complete = _ref.complete;
 
     // Each Todo
     return _react2.default.createElement(
         'li',
         { className: 'list-group-item' },
         _react2.default.createElement(
-            'a',
-            { href: '#', 'data-todoid': todo._id, 'data-toggle': 'tooltip', 'data-placement': 'top', title: 'Click on item to delete.' },
+            'label',
+            { htmlFor: 'todoStatus_' + todo._id },
+            _react2.default.createElement('input', { name: 'todoStatus[]', id: 'todoStatus_' + todo._id, type: 'checkbox', value: todo._id, onChange: function onChange() {
+                    return complete(todo._id);
+                }, checked: todo.isDone }),
+            ' ',
             todo.title,
-            ' =  ',
+            ' ',
             _react2.default.createElement(
                 'span',
-                { className: 'badge badge-primary' },
+                { className: "badge " + (todo.isDone ? 'badge-success' : 'badge-primary') },
                 todo.status
             )
         ),
@@ -1025,11 +1030,12 @@ var Todo = function Todo(_ref) {
 var TodoList = function TodoList(_ref2) {
     var todos = _ref2.todos,
         remove = _ref2.remove,
-        edit = _ref2.edit;
+        edit = _ref2.edit,
+        completeTodo = _ref2.completeTodo;
 
     // Map through the todos
     var todoNode = todos.map(function (todo) {
-        return _react2.default.createElement(Todo, { todo: todo, key: todo._id, remove: remove, edit: edit });
+        return _react2.default.createElement(Todo, { todo: todo, key: todo._id, remove: remove, edit: edit, complete: completeTodo });
     });
 
     return _react2.default.createElement(
@@ -1050,10 +1056,12 @@ var TodoApp = exports.TodoApp = function (_React$Component) {
 
         var _this = _possibleConstructorReturn(this, (TodoApp.__proto__ || Object.getPrototypeOf(TodoApp)).call(this, props));
 
+        _this.visibilityFilters = ["ALL_TODOS", "ACTIVE_TODOS", "COMPLETED_TODOS"];
         _this.state = {
             data: [],
             isEditing: false,
-            editTodo: {}
+            editTodo: {},
+            visibilityFilter: "ALL_TODOS"
         };
         return _this;
     }
@@ -1087,10 +1095,10 @@ var TodoApp = exports.TodoApp = function (_React$Component) {
             var _this3 = this;
 
             if (id) {
-                // Update data
+                // if Edit Mode on : Update data
                 fetch('./api/updateTodo', {
                     method: 'PUT',
-                    body: JSON.stringify({ title: value, status: 'pending', id: id }),
+                    body: JSON.stringify({ id: id, title: value, status: 'pending', isDone: false }),
                     mode: 'cors',
                     redirect: 'follow',
                     headers: new Headers({
@@ -1100,15 +1108,22 @@ var TodoApp = exports.TodoApp = function (_React$Component) {
                 }).then(function (response) {
                     return response.json();
                 }).then(function (data) {
-                    console.log("EDIT data: ", data);
+                    _this3.state.data.find(function (todo, index) {
+                        if (todo._id === id) {
+                            _this3.state.data.splice(index, 1, data);
+                        }
+                    });
                     _this3.setState({ data: _this3.state.data });
                 }).catch(function (err) {
-                    console.log('Error in adding TODO to database.');
+                    console.log('Error in updating TODO to database.');
                 });
+
+                this.setState({ isEditing: false, editTodo: {} });
             } else {
+                // Else Edit mode Off : Only Add new record
                 fetch('./api/addTodo', {
                     method: 'POST',
-                    body: JSON.stringify({ title: value, status: 'pending' }),
+                    body: JSON.stringify({ title: value, status: 'pending', isDone: false }),
                     mode: 'cors',
                     redirect: 'follow',
                     headers: new Headers({
@@ -1118,11 +1133,10 @@ var TodoApp = exports.TodoApp = function (_React$Component) {
                 }).then(function (response) {
                     return response.json();
                 }).then(function (data) {
-                    console.log("ADD data: ", data);
                     _this3.state.data.push(data);
                     _this3.setState({ data: _this3.state.data });
                 }).catch(function (err) {
-                    console.log('Error in adding TODO to database.');
+                    console.log('Error in adding TODO to database.', err);
                 });
             }
         }
@@ -1162,10 +1176,38 @@ var TodoApp = exports.TodoApp = function (_React$Component) {
                     // "Content-type": "application/x-www-form-urlencoded; charset=UTF-8"
                 })
             }).then(function (response) {
-                console.log('removed todo item and setting state');
                 _this4.setState({ data: remainder });
             }).catch(function (err) {
-                console.log('Todo added to database.');
+                console.log('Removed Todo item successfully from database.', err);
+            });
+        }
+    }, {
+        key: 'completeTodo',
+        value: function completeTodo(todoId) {
+            var _this5 = this;
+
+            // Else Edit mode Off : Only Add new record
+            fetch('./api/completeTodo', {
+                method: 'PUT',
+                body: JSON.stringify({ id: todoId, status: 'completed', isDone: true }),
+                mode: 'cors',
+                redirect: 'follow',
+                headers: new Headers({
+                    'Content-Type': 'application/json'
+                    // "Content-type": "application/x-www-form-urlencoded; charset=UTF-8"
+                })
+            }).then(function (response) {
+                return response.json();
+            }).then(function (data) {
+                console.log("DaTA:", data);
+                _this5.state.data.find(function (todo, index) {
+                    if (todo._id === todoId) {
+                        _this5.state.data.splice(index, 1, data);
+                    }
+                });
+                _this5.setState({ data: _this5.state.data });
+            }).catch(function (err) {
+                console.log('Error in completing TODO to database.', err);
             });
         }
     }, {
@@ -1182,6 +1224,7 @@ var TodoApp = exports.TodoApp = function (_React$Component) {
                     _react2.default.createElement(_todoForm2.default, { isEditing: this.state.isEditing, editTodo: this.state.editTodo, addTodo: this.addTodo.bind(this) }),
                     _react2.default.createElement(TodoList, {
                         todos: this.state.data,
+                        completeTodo: this.completeTodo.bind(this),
                         remove: this.removeTodo.bind(this),
                         edit: this.editTodo.bind(this)
                     })
@@ -18649,13 +18692,11 @@ var TodoForm = function (_React$Component) {
     }, {
         key: 'componentWillReceiveProps',
         value: function componentWillReceiveProps(nextProps) {
-            console.log("0 :", this.state.value);
-            console.log("1 :", this.props.editTodo.title);
-            console.log("2 Next Prop:", nextProps.editTodo.title);
-            if (this.props.editTodo.title === nextProps.editTodo.title) {} else {
+            if (!nextProps.editTodo.title) {
+                this.setState({ value: '' });
+            } else if (this.props.editTodo.title === nextProps.editTodo.title) {} else {
                 this.setState({ value: nextProps.editTodo.title });
             }
-            console.log("3 :", this.state.value);
         }
     }, {
         key: 'handleSubmit',

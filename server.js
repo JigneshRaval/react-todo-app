@@ -40,47 +40,61 @@ app.post('/api/addTodo', function (req, res) {
     var doc = {
         title: req.body.title,
         status: req.body.status,
+        isDone: req.body.isDone,
         today: new Date()
     };
 
     db.insert(doc, function (err, newDoc) {   // Callback is optional
         // newDoc is the newly inserted document, including its _id
         // newDoc has no key called notToBeSaved since its value was undefined
+        if (err) {
+            return err;
+        }
         res.status(200).send(newDoc);
     });
 });
 
 app.put('/api/updateTodo', function (req, res) {
-    console.log("Update Todo item :", req.body, req.params);
-    //res.status(200).send({ message: 'Item updated successfully in database.' });
-
     // Set an existing field's value
     db.update({ _id: req.body.id }, { $set: { title: req.body.title } }, { multi: false }, function (err, numReplaced) {
-        db.find({}, function (err, docs) {
+        db.find({ _id: req.body.id }, function (err, docs) {
             if (err) {
                 return err;
             }
-            res.status(200).send(docs);
+            res.status(200).send(docs[0]);
+        });
+    });
+});
+
+app.put('/api/completeTodo', function (req, res) {
+    // Set an existing field's value
+    db.update({ _id: req.body.id }, { $set: { status: req.body.status, isDone: req.body.isDone } }, { multi: false }, function (err, numReplaced) {
+        db.find({ _id: req.body.id }, function (err, docs) {
+            if (err) {
+                return err;
+            }
+            res.status(200).send(docs[0]);
         });
     });
 });
 
 app.delete('/api/removeTodo', function (req, res) {
-    console.log("Delete Todo item :", req.body, req.params);
     db.remove({ _id: req.body.id }, {}, function (err, numRemoved) {
-        console.log('Item removed', numRemoved);
-        res.status(200).send({ message: 'Item removed successfully from database.' });
+        if (err) {
+            return err;
+        }
+        res.status(200).send({ status: 'OK', message: 'Item removed successfully from database.' });
     });
 });
 
 // Handle 404 Error
 app.use(function (req, res) {
-    res.status(400).send({ body: '404: File Not Found', data: "Plese Go Back to Home page." });
+    res.status(400).send({ error: '404: File Not Found', message: "Plese Go Back to Home page." });
 });
 
 // Handle 500 Error
 app.use(function (error, req, res, next) {
-    res.status(500).send({ body: '500: Internal Server Error', data: error });
+    res.status(500).send({ error: '500: Internal Server Error', message: error });
 });
 
 // START THE SERVER

@@ -6,11 +6,14 @@ import TodoForm from './components/todo-form.component';
 
 // 3. Single Todo item
 // ==============================
-const Todo = ({ todo, remove, edit }) => {
+const Todo = ({ todo, remove, edit, complete }) => {
     // Each Todo
     return (
         <li className="list-group-item">
-            <a href="#" data-todoid={todo._id} data-toggle="tooltip" data-placement="top" title="Click on item to delete.">{todo.title} =  <span className="badge badge-primary">{todo.status}</span></a>
+            <label htmlFor={'todoStatus_' + todo._id}>
+                <input name="todoStatus[]" id={'todoStatus_' + todo._id} type="checkbox" value={todo._id} onChange={() => complete(todo._id)} checked={todo.isDone} /> {todo.title} <span className={"badge " + (todo.isDone ? 'badge-success' : 'badge-primary')}>{todo.status}</span>
+            </label>
+            {/* <a href="#" data-todoid={todo._id} data-toggle="tooltip" data-placement="top" title="Click on item to delete.">{todo.title} =  <span className="badge badge-primary">{todo.status}</span></a> */}
 
             <button className="btn btn-danger float-right" onClick={() => { remove(todo._id) }}>Delete</button>
             <button className="btn btn-primary float-right" onClick={() => { edit(todo._id) }}>Edit</button>
@@ -21,10 +24,10 @@ const Todo = ({ todo, remove, edit }) => {
 
 // 2. Todo List
 // ==============================
-const TodoList = ({ todos, remove, edit }) => {
+const TodoList = ({ todos, remove, edit, completeTodo }) => {
     // Map through the todos
     const todoNode = todos.map((todo) => {
-        return (<Todo todo={todo} key={todo._id} remove={remove} edit={edit} />)
+        return (<Todo todo={todo} key={todo._id} remove={remove} edit={edit} complete={completeTodo} />)
     });
 
     return (<ul className="list-group" style={{ marginTop: '30px' }}>{todoNode}</ul>);
@@ -36,10 +39,12 @@ const TodoList = ({ todos, remove, edit }) => {
 export class TodoApp extends React.Component {
     constructor(props) {
         super(props);
+        this.visibilityFilters = ["ALL_TODOS", "ACTIVE_TODOS", "COMPLETED_TODOS"];
         this.state = {
             data: [],
             isEditing: false,
-            editTodo: {}
+            editTodo: {},
+            visibilityFilter: "ALL_TODOS"
         }
     }
 
@@ -66,10 +71,10 @@ export class TodoApp extends React.Component {
     // Add Todo item
     addTodo(value, id) {
         if (id) {
-            // Update data
+            // if Edit Mode on : Update data
             fetch('./api/updateTodo', {
                 method: 'PUT',
-                body: JSON.stringify({ title: value, status: 'pending', id: id }),
+                body: JSON.stringify({ id: id, title: value, status: 'pending', isDone: false }),
                 mode: 'cors',
                 redirect: 'follow',
                 headers: new Headers({
@@ -79,16 +84,23 @@ export class TodoApp extends React.Component {
             })
                 .then((response) => response.json())
                 .then((data) => {
-                    console.log("EDIT data: ", data);
+                    this.state.data.find((todo, index) => {
+                        if (todo._id === id) {
+                            this.state.data.splice(index, 1, data);
+                        }
+                    });
                     this.setState({ data: this.state.data });
                 })
                 .catch((err) => {
-                    console.log('Error in adding TODO to database.');
+                    console.log('Error in updating TODO to database.');
                 });
+
+            this.setState({ isEditing: false, editTodo: {} });
         } else {
+            // Else Edit mode Off : Only Add new record
             fetch('./api/addTodo', {
                 method: 'POST',
-                body: JSON.stringify({ title: value, status: 'pending' }),
+                body: JSON.stringify({ title: value, status: 'pending', isDone: false }),
                 mode: 'cors',
                 redirect: 'follow',
                 headers: new Headers({
@@ -98,14 +110,12 @@ export class TodoApp extends React.Component {
             })
                 .then((response) => response.json())
                 .then((data) => {
-                    console.log("ADD data: ", data);
                     this.state.data.push(data);
                     this.setState({ data: this.state.data });
                 })
                 .catch((err) => {
-                    console.log('Error in adding TODO to database.');
+                    console.log('Error in adding TODO to database.', err);
                 });
-
         }
     }
 
@@ -137,11 +147,37 @@ export class TodoApp extends React.Component {
             })
         })
             .then((response) => {
-                console.log('removed todo item and setting state');
                 this.setState({ data: remainder })
             })
             .catch((err) => {
-                console.log('Todo added to database.');
+                console.log('Removed Todo item successfully from database.', err);
+            });
+    }
+
+    completeTodo(todoId) {
+        // Else Edit mode Off : Only Add new record
+        fetch('./api/completeTodo', {
+            method: 'PUT',
+            body: JSON.stringify({ id: todoId, status: 'completed', isDone: true }),
+            mode: 'cors',
+            redirect: 'follow',
+            headers: new Headers({
+                'Content-Type': 'application/json'
+                // "Content-type": "application/x-www-form-urlencoded; charset=UTF-8"
+            })
+        })
+            .then((response) => response.json())
+            .then((data) => {
+                console.log("DaTA:", data);
+                this.state.data.find((todo, index) => {
+                    if (todo._id === todoId) {
+                        this.state.data.splice(index, 1, data);
+                    }
+                });
+                this.setState({ data: this.state.data });
+            })
+            .catch((err) => {
+                console.log('Error in completing TODO to database.', err);
             });
     }
 
@@ -154,6 +190,7 @@ export class TodoApp extends React.Component {
                     <TodoForm isEditing={this.state.isEditing} editTodo={this.state.editTodo} addTodo={this.addTodo.bind(this)} />
                     <TodoList
                         todos={this.state.data}
+                        completeTodo={this.completeTodo.bind(this)}
                         remove={this.removeTodo.bind(this)}
                         edit={this.editTodo.bind(this)}
                     />

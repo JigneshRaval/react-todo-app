@@ -1,11 +1,8 @@
-{"title":"sdfsfsf sdfsf sdsfsfsf","status":"pending","today":{"$$date":1518087583100},"_id":"3QACIouhZZlhmm6T"}
-{"title":"Implement Edit component 10001","status":"pending","today":{"$$date":1518190524642},"_id":"8hIFBsmEbyIuFpCv"}
-{"title":"Jignesh Raval 1234","status":"pending","today":{"$$date":1518182269463},"_id":"9Xz2MSHIeh87WMgF"}
-{"title":"sdfsfsfsf","status":"pending","today":{"$$date":1518171090273},"_id":"DZvP2o5Dd4t9J3Ax"}
-{"title":"sdfsfsf sdfsf sdfsfsfdsfsdf","status":"pending","today":{"$$date":1519051550346},"_id":"Dfq4SRyTBy7Xn6xI"}
-{"title":"new 8 456","status":"pending","today":{"$$date":1518184902299},"_id":"Dp3J6BacTeG8ijV8"}
+{"title":"Test 123456 888999 01","status":"completed","today":{"$$date":1519137556716},"_id":"1DDm0tqmZxXaxtbs"}
+{"title":"Implement Edit component 1007","status":"pending","today":{"$$date":1518190524642},"_id":"8hIFBsmEbyIuFpCv"}
 {"title":"Amul the test of india","status":"pending","today":{"$$date":1518091248112},"_id":"ECDUmbjOt4vtOKSv"}
-{"title":"L","status":"pending","today":{"$$date":1519054594880},"_id":"GwsymIuCPPTXeXdv"}
-{"title":"New 10","status":"pending","today":{"$$date":1518184924460},"_id":"HGWGsNEVFNXIGZ8S"}
-{"title":"sdfsfsf sdfsf sfsfsfsffsf","status":"pending","today":{"$$date":1519050735289},"_id":"IN2eF9QCJQfelDU8"}
-{"title":"Hi","status":"pending","today":{"$$date":1519054545370},"_id":"S8fw5yA5I8uR2sc8"}
+{"title":"New one","status":"completed","today":{"$$date":1519144407828},"_id":"IdbOjZgDMwSWB4LJ"}
+{"title":"New Two","status":"completed","isDone":true,"today":{"$$date":1519144609480},"_id":"JNLk8Q1QNjgT5xnv"}
+{"title":"Manish Sharma","status":"pending","today":{"$$date":1519137104102},"_id":"cn84jkO9n4uq54tB"}
+{"title":"New Three","status":"pending","isDone":false,"today":{"$$date":1519144817759},"_id":"Eyt44n1svxIjOn5Y"}
+{"title":"New Three","status":"completed","isDone":true,"today":{"$$date":1519144817759},"_id":"Eyt44n1svxIjOn5Y"}
