@@ -1,13 +1,13 @@
 # react-todo-app
 React Todo app using Webpack, Babel, Express.js and NeDB
 
-#Install
-Download or clone this repository
+## Install
+1. Download or clone this repository
 
-Run "npm install" command
+2. Run `npm install` command from that folder
 
-Open command prompt and run "npm run start" and in another command prompt "npm run webpack"
+3. Open command prompt and run `npm run start` and in another command prompt `npm run webpack`
 
-#Screenshot
+## Screenshot
 
 ![alt text](src/assets/images/react-todo-app-v1.png "React todo app v1")
