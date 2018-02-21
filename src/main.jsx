@@ -3,32 +3,57 @@ import ReactDOM from 'react-dom';
 import { Header } from './components/Header.component';
 import { Title } from './components/todo-title.component';
 import TodoForm from './components/todo-form.component';
+import TodoDataInterface from './components/TodoDataInterface';
+
+const todoDataInterface = new TodoDataInterface();
 
 // 3. Single Todo item
 // ==============================
-const Todo = ({ todo, remove, edit, complete }) => {
+const SingleTodo = (props) => {
+    // props = { todo, remove, edit, complete }
+
+    let toggleTodoStatus = (event) => {
+        console.log('Hi', event.target);
+        if (event.target.checked) {
+            props.complete(props.todo._id, event.target.checked);
+        } else {
+            props.complete(props.todo._id, event.target.checked);
+        }
+
+    }
+
     // Each Todo
     return (
-        <li className="list-group-item">
-            <label htmlFor={'todoStatus_' + todo._id}>
-                <input name="todoStatus[]" id={'todoStatus_' + todo._id} type="checkbox" value={todo._id} onChange={() => complete(todo._id)} checked={todo.isDone} /> {todo.title} <span className={"badge " + (todo.isDone ? 'badge-success' : 'badge-primary')}>{todo.status}</span>
+        <li className={"list-group-item " + (props.todo.isDone ? "done" : "")}>
+            <label htmlFor={'todoStatus_' + props.todo._id}>
+                <input name="todoStatus[]" id={'todoStatus_' + props.todo._id} type="checkbox" value={props.todo._id} onChange={toggleTodoStatus.bind(this)} checked={props.todo.isDone} /> {props.todo.title} <span className={"badge " + (props.todo.isDone ? 'badge-success' : 'badge-primary')}>{props.todo.status}</span>
             </label>
-            {/* <a href="#" data-todoid={todo._id} data-toggle="tooltip" data-placement="top" title="Click on item to delete.">{todo.title} =  <span className="badge badge-primary">{todo.status}</span></a> */}
 
-            <button className="btn btn-danger float-right" onClick={() => { remove(todo._id) }}>Delete</button>
-            <button className="btn btn-primary float-right" onClick={() => { edit(todo._id) }}>Edit</button>
-
+            <button className="btn btn-danger float-right" onClick={() => { props.remove(props.todo._id) }}>Delete</button>
+            <button className="btn btn-primary float-right" onClick={() => { props.edit(props.todo._id) }}>Edit</button>
         </li>);
 }
 
 
 // 2. Todo List
 // ==============================
-const TodoList = ({ todos, remove, edit, completeTodo }) => {
+const TodoList = (props) => {
+    // props = { todos, remove, edit, completeTodo }
     // Map through the todos
-    const todoNode = todos.map((todo) => {
-        return (<Todo todo={todo} key={todo._id} remove={remove} edit={edit} complete={completeTodo} />)
-    });
+
+    let todoNode;
+
+    // If VisibleTodos length is greater then zero
+    {
+        props.visibleTodos.length > 0 ?
+            (
+                todoNode = props.visibleTodos.map((todo) => {
+                    return (<SingleTodo todo={todo} key={todo._id} remove={props.remove} edit={props.edit} complete={props.completeTodo} />)
+                })
+            ) : (
+                todoNode = (<li className="list-group-item">Nothing here</li>)
+            )
+    }
 
     return (<ul className="list-group" style={{ marginTop: '30px' }}>{todoNode}</ul>);
 }
@@ -50,22 +75,14 @@ export class TodoApp extends React.Component {
 
     componentDidMount() {
         // Render all Todo items on component render
-        fetch('./api/todos')
-            .then((response) => {
-                if (response.status !== 200) {
-                    console.log('Looks like there was a problem. Status Code: ' +
-                        response.status);
-                    return;
-                }
-
-                // Examine the text in the response
-                response.json().then((data) => {
-                    this.setState({ data: data })
-                });
+        this.props.dataInterface.getAllTodos('./api/todos')
+            .then((data) => {
+                this.setState({ data: data })
             })
             .catch((err) => {
-                console.log('Fetch Error :-S', err);
+                console.log('Error in fetching all reacords', err);
             });
+
     }
 
     // Add Todo item
@@ -154,11 +171,11 @@ export class TodoApp extends React.Component {
             });
     }
 
-    completeTodo(todoId) {
-        // Else Edit mode Off : Only Add new record
+    completeTodo(todoId, isDone) {
+        // Mark todo ad Complete or Pending
         fetch('./api/completeTodo', {
             method: 'PUT',
-            body: JSON.stringify({ id: todoId, status: 'completed', isDone: true }),
+            body: JSON.stringify({ id: todoId, status: isDone ? "completed" : "pending", isDone: isDone }),
             mode: 'cors',
             redirect: 'follow',
             headers: new Headers({
@@ -168,7 +185,6 @@ export class TodoApp extends React.Component {
         })
             .then((response) => response.json())
             .then((data) => {
-                console.log("DaTA:", data);
                 this.state.data.find((todo, index) => {
                     if (todo._id === todoId) {
                         this.state.data.splice(index, 1, data);
@@ -181,19 +197,53 @@ export class TodoApp extends React.Component {
             });
     }
 
+    visibleTodos() {
+        switch (this.state.visibilityFilter) {
+            case 'ALL_TODOS':
+                return this.state.data;
+            case 'ACTIVE_TODOS':
+                return this.state.data.filter(todo => todo.isDone === false);
+            case 'COMPLETED_TODOS':
+                return this.state.data.filter(todo => todo.isDone === true);
+            default:
+                return this.state.data;
+        }
+    }
+
+    changeVisibilityFilter(visibilityFilter) {
+        this.setState({ visibilityFilter: visibilityFilter });
+    }
+
     render() {
+
+        let visibleTodosArray = this.visibleTodos();
+        console.log('visibleTodos :', visibleTodosArray);
         return (
             <main>
                 <Header />
                 <div className="container">
                     <Title todoCount={this.state.data.length} />
                     <TodoForm isEditing={this.state.isEditing} editTodo={this.state.editTodo} addTodo={this.addTodo.bind(this)} />
+                    <h3 className="text-center">{this.state.visibilityFilter.replace('_', ' ')}</h3>
                     <TodoList
                         todos={this.state.data}
+                        visibleTodos={visibleTodosArray}
                         completeTodo={this.completeTodo.bind(this)}
                         remove={this.removeTodo.bind(this)}
                         edit={this.editTodo.bind(this)}
                     />
+                    <div className="text-center p-3">
+                        {
+                            this.visibilityFilters.map((visibilityFilter) => {
+                                return (<button
+                                    className={"btn " + (this.state.visibilityFilter === visibilityFilter ? "btn-primary" : "btn-outline-primary")}
+                                    key={visibilityFilter}
+                                    onClick={() => this.changeVisibilityFilter(visibilityFilter)}>
+                                    {visibilityFilter.replace("_", " ")}
+                                </button>)
+                            })
+                        }
+                    </div>
                 </div>
             </main>
         )
@@ -201,6 +251,6 @@ export class TodoApp extends React.Component {
 }
 
 ReactDOM.render(
-    <TodoApp />,
+    <TodoApp dataInterface={todoDataInterface} />,
     document.getElementById('app')
 );

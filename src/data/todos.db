@@ -1,17 +1,7 @@
-{"title":"Test 123456 888999 01","status":"completed","today":{"$$date":1519137556716},"_id":"1DDm0tqmZxXaxtbs"}
-{"title":"Implement Edit component 1007","status":"pending","today":{"$$date":1518190524642},"_id":"8hIFBsmEbyIuFpCv"}
-{"title":"Amul the test of india","status":"pending","today":{"$$date":1518091248112},"_id":"ECDUmbjOt4vtOKSv"}
-{"title":"New one","status":"completed","today":{"$$date":1519144407828},"_id":"IdbOjZgDMwSWB4LJ"}
-{"title":"New Two","status":"completed","isDone":true,"today":{"$$date":1519144609480},"_id":"JNLk8Q1QNjgT5xnv"}
-{"title":"Manish Sharma","status":"pending","today":{"$$date":1519137104102},"_id":"cn84jkO9n4uq54tB"}
-{"title":"New Three","status":"pending","isDone":false,"today":{"$$date":1519144817759},"_id":"Eyt44n1svxIjOn5Y"}
-{"title":"New Three","status":"completed","isDone":true,"today":{"$$date":1519144817759},"_id":"Eyt44n1svxIjOn5Y"}
-{"$$deleted":true,"_id":"1DDm0tqmZxXaxtbs"}
-{"$$deleted":true,"_id":"8hIFBsmEbyIuFpCv"}
-{"$$deleted":true,"_id":"ECDUmbjOt4vtOKSv"}
-{"$$deleted":true,"_id":"IdbOjZgDMwSWB4LJ"}
-{"$$deleted":true,"_id":"cn84jkO9n4uq54tB"}
-{"title":"Amul India","status":"pending","isDone":false,"today":{"$$date":1519144873087},"_id":"uyISWNb7vapmRrNG"}
+{"title":"New Three 123","status":"pending","isDone":false,"today":{"$$date":1519144817759},"_id":"Eyt44n1svxIjOn5Y"}
+{"title":"My First card","status":"pending","isDone":false,"today":{"$$date":1519218013979},"_id":"UlSoOrLBjX2RldgQ"}
 {"title":"Sun Pharma","status":"pending","isDone":false,"today":{"$$date":1519144879040},"_id":"VbBEyndCIhPDB1Uf"}
-{"title":"Purchase Milk","status":"pending","isDone":false,"today":{"$$date":1519144884829},"_id":"ZNNOEOxoBWGOuOCe"}
-{"title":"Design Later","status":"pending","isDone":false,"today":{"$$date":1519144891136},"_id":"zK4K0bXGwvZTIukJ"}
+{"title":"Design News","status":"pending","isDone":false,"today":{"$$date":1519218007730},"_id":"rpW4bVIYWjlPMgk6"}
+{"title":"Amul India sddsd","status":"pending","isDone":false,"today":{"$$date":1519144873087},"_id":"uyISWNb7vapmRrNG"}
+{"title":"Sun Pharma","status":"completed","isDone":true,"today":{"$$date":1519144879040},"_id":"VbBEyndCIhPDB1Uf"}
+{"title":"Sun Pharma","status":"pending","isDone":false,"today":{"$$date":1519144879040},"_id":"VbBEyndCIhPDB1Uf"}

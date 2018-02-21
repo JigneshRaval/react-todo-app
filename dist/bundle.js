@@ -973,6 +973,10 @@ var _todoForm = __webpack_require__(29);
 
 var _todoForm2 = _interopRequireDefault(_todoForm);
 
+var _TodoDataInterface = __webpack_require__(30);
+
+var _TodoDataInterface2 = _interopRequireDefault(_TodoDataInterface);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -981,44 +985,50 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+var todoDataInterface = new _TodoDataInterface2.default();
+
 // 3. Single Todo item
 // ==============================
-var Todo = function Todo(_ref) {
-    var todo = _ref.todo,
-        remove = _ref.remove,
-        edit = _ref.edit,
-        complete = _ref.complete;
+var SingleTodo = function SingleTodo(props) {
+    // props = { todo, remove, edit, complete }
+
+    var toggleTodoStatus = function toggleTodoStatus(event) {
+        console.log('Hi', event.target);
+        if (event.target.checked) {
+            props.complete(props.todo._id, event.target.checked);
+        } else {
+            props.complete(props.todo._id, event.target.checked);
+        }
+    };
 
     // Each Todo
     return _react2.default.createElement(
         'li',
-        { className: 'list-group-item' },
+        { className: "list-group-item " + (props.todo.isDone ? "done" : "") },
         _react2.default.createElement(
             'label',
-            { htmlFor: 'todoStatus_' + todo._id },
-            _react2.default.createElement('input', { name: 'todoStatus[]', id: 'todoStatus_' + todo._id, type: 'checkbox', value: todo._id, onChange: function onChange() {
-                    return complete(todo._id);
-                }, checked: todo.isDone }),
+            { htmlFor: 'todoStatus_' + props.todo._id },
+            _react2.default.createElement('input', { name: 'todoStatus[]', id: 'todoStatus_' + props.todo._id, type: 'checkbox', value: props.todo._id, onChange: toggleTodoStatus.bind(undefined), checked: props.todo.isDone }),
             ' ',
-            todo.title,
+            props.todo.title,
             ' ',
             _react2.default.createElement(
                 'span',
-                { className: "badge " + (todo.isDone ? 'badge-success' : 'badge-primary') },
-                todo.status
+                { className: "badge " + (props.todo.isDone ? 'badge-success' : 'badge-primary') },
+                props.todo.status
             )
         ),
         _react2.default.createElement(
             'button',
             { className: 'btn btn-danger float-right', onClick: function onClick() {
-                    remove(todo._id);
+                    props.remove(props.todo._id);
                 } },
             'Delete'
         ),
         _react2.default.createElement(
             'button',
             { className: 'btn btn-primary float-right', onClick: function onClick() {
-                    edit(todo._id);
+                    props.edit(props.todo._id);
                 } },
             'Edit'
         )
@@ -1027,16 +1037,22 @@ var Todo = function Todo(_ref) {
 
 // 2. Todo List
 // ==============================
-var TodoList = function TodoList(_ref2) {
-    var todos = _ref2.todos,
-        remove = _ref2.remove,
-        edit = _ref2.edit,
-        completeTodo = _ref2.completeTodo;
-
+var TodoList = function TodoList(props) {
+    // props = { todos, remove, edit, completeTodo }
     // Map through the todos
-    var todoNode = todos.map(function (todo) {
-        return _react2.default.createElement(Todo, { todo: todo, key: todo._id, remove: remove, edit: edit, complete: completeTodo });
-    });
+
+    var todoNode = void 0;
+
+    // If VisibleTodos length is greater then zero
+    {
+        props.visibleTodos.length > 0 ? todoNode = props.visibleTodos.map(function (todo) {
+            return _react2.default.createElement(SingleTodo, { todo: todo, key: todo._id, remove: props.remove, edit: props.edit, complete: props.completeTodo });
+        }) : todoNode = _react2.default.createElement(
+            'li',
+            { className: 'list-group-item' },
+            'Nothing here'
+        );
+    }
 
     return _react2.default.createElement(
         'ul',
@@ -1072,18 +1088,10 @@ var TodoApp = exports.TodoApp = function (_React$Component) {
             var _this2 = this;
 
             // Render all Todo items on component render
-            fetch('./api/todos').then(function (response) {
-                if (response.status !== 200) {
-                    console.log('Looks like there was a problem. Status Code: ' + response.status);
-                    return;
-                }
-
-                // Examine the text in the response
-                response.json().then(function (data) {
-                    _this2.setState({ data: data });
-                });
+            this.props.dataInterface.getAllTodos('./api/todos').then(function (data) {
+                _this2.setState({ data: data });
             }).catch(function (err) {
-                console.log('Fetch Error :-S', err);
+                console.log('Error in fetching all reacords', err);
             });
         }
 
@@ -1183,13 +1191,13 @@ var TodoApp = exports.TodoApp = function (_React$Component) {
         }
     }, {
         key: 'completeTodo',
-        value: function completeTodo(todoId) {
+        value: function completeTodo(todoId, isDone) {
             var _this5 = this;
 
-            // Else Edit mode Off : Only Add new record
+            // Mark todo ad Complete or Pending
             fetch('./api/completeTodo', {
                 method: 'PUT',
-                body: JSON.stringify({ id: todoId, status: 'completed', isDone: true }),
+                body: JSON.stringify({ id: todoId, status: isDone ? "completed" : "pending", isDone: isDone }),
                 mode: 'cors',
                 redirect: 'follow',
                 headers: new Headers({
@@ -1199,7 +1207,6 @@ var TodoApp = exports.TodoApp = function (_React$Component) {
             }).then(function (response) {
                 return response.json();
             }).then(function (data) {
-                console.log("DaTA:", data);
                 _this5.state.data.find(function (todo, index) {
                     if (todo._id === todoId) {
                         _this5.state.data.splice(index, 1, data);
@@ -1211,8 +1218,35 @@ var TodoApp = exports.TodoApp = function (_React$Component) {
             });
         }
     }, {
+        key: 'visibleTodos',
+        value: function visibleTodos() {
+            switch (this.state.visibilityFilter) {
+                case 'ALL_TODOS':
+                    return this.state.data;
+                case 'ACTIVE_TODOS':
+                    return this.state.data.filter(function (todo) {
+                        return todo.isDone === false;
+                    });
+                case 'COMPLETED_TODOS':
+                    return this.state.data.filter(function (todo) {
+                        return todo.isDone === true;
+                    });
+                default:
+                    return this.state.data;
+            }
+        }
+    }, {
+        key: 'changeVisibilityFilter',
+        value: function changeVisibilityFilter(visibilityFilter) {
+            this.setState({ visibilityFilter: visibilityFilter });
+        }
+    }, {
         key: 'render',
         value: function render() {
+            var _this6 = this;
+
+            var visibleTodosArray = this.visibleTodos();
+            console.log('visibleTodos :', visibleTodosArray);
             return _react2.default.createElement(
                 'main',
                 null,
@@ -1222,12 +1256,34 @@ var TodoApp = exports.TodoApp = function (_React$Component) {
                     { className: 'container' },
                     _react2.default.createElement(_todoTitle.Title, { todoCount: this.state.data.length }),
                     _react2.default.createElement(_todoForm2.default, { isEditing: this.state.isEditing, editTodo: this.state.editTodo, addTodo: this.addTodo.bind(this) }),
+                    _react2.default.createElement(
+                        'h3',
+                        { className: 'text-center' },
+                        this.state.visibilityFilter.replace('_', ' ')
+                    ),
                     _react2.default.createElement(TodoList, {
                         todos: this.state.data,
+                        visibleTodos: visibleTodosArray,
                         completeTodo: this.completeTodo.bind(this),
                         remove: this.removeTodo.bind(this),
                         edit: this.editTodo.bind(this)
-                    })
+                    }),
+                    _react2.default.createElement(
+                        'div',
+                        { className: 'text-center p-3' },
+                        this.visibilityFilters.map(function (visibilityFilter) {
+                            return _react2.default.createElement(
+                                'button',
+                                {
+                                    className: "btn " + (_this6.state.visibilityFilter === visibilityFilter ? "btn-primary" : "btn-outline-primary"),
+                                    key: visibilityFilter,
+                                    onClick: function onClick() {
+                                        return _this6.changeVisibilityFilter(visibilityFilter);
+                                    } },
+                                visibilityFilter.replace("_", " ")
+                            );
+                        })
+                    )
                 )
             );
         }
@@ -1236,7 +1292,7 @@ var TodoApp = exports.TodoApp = function (_React$Component) {
     return TodoApp;
 }(_react2.default.Component);
 
-_reactDom2.default.render(_react2.default.createElement(TodoApp, null), document.getElementById('app'));
+_reactDom2.default.render(_react2.default.createElement(TodoApp, { dataInterface: todoDataInterface }), document.getElementById('app'));
 
 /***/ }),
 /* 15 */
@@ -18744,6 +18800,53 @@ var TodoForm = function (_React$Component) {
 
 
 exports.default = TodoForm;
+
+/***/ }),
+/* 30 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var TodoDataInterface = function () {
+    function TodoDataInterface() {
+        _classCallCheck(this, TodoDataInterface);
+
+        this.todos = [];
+    }
+
+    _createClass(TodoDataInterface, [{
+        key: 'getAllTodos',
+        value: function getAllTodos(url) {
+            var _this = this;
+
+            // Render all Todo items on component render
+            return fetch(url).then(function (response) {
+                // If error then exit
+                if (response.status !== 200) {
+                    console.log('Looks like there was a problem. Status Code: ' + response.status);
+                    return;
+                }
+
+                // Examine the text in the response
+                _this.todos = response.json();
+                return _this.todos;
+            });
+        }
+    }]);
+
+    return TodoDataInterface;
+}();
+
+exports.default = TodoDataInterface;
 
 /***/ })
 /******/ ]);
