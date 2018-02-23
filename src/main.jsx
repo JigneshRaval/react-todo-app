@@ -25,6 +25,7 @@ const SingleTodo = (props) => {
     // Each Todo
     return (
         <li className={"list-group-item " + (props.todo.isDone ? "done" : "")}>
+            {props.todo.today.split("T")[0].replace(/-/g, ",")}
             <label htmlFor={'todoStatus_' + props.todo._id}>
                 <input name="todoStatus[]" id={'todoStatus_' + props.todo._id} type="checkbox" value={props.todo._id} onChange={toggleTodoStatus.bind(this)} checked={props.todo.isDone} /> {props.todo.title} <span className={"badge " + (props.todo.isDone ? 'badge-success' : 'badge-primary')}>{props.todo.status}</span>
                 <span>{props.todo.today}</span>
@@ -41,15 +42,28 @@ const SingleTodo = (props) => {
 const TodoList = (props) => {
     // props = { todos, remove, edit, completeTodo }
     // Map through the todos
-
+    console.log("List :", props.visibleTodos[0]);
     let todoNode;
+    /*let temp = Object.keys(props.visibleTodos).map(function (k) {
+        console.log("K :", k, props.visibleTodos, props.visibleTodos[k]);
 
+        return props.visibleTodos[k];
+    });
+
+    console.log("List 2 :", temp); */
     // If VisibleTodos length is greater then zero
     {
         props.visibleTodos.length > 0 ?
             (
-                todoNode = props.visibleTodos.map((todo) => {
-                    return (<SingleTodo todo={todo} key={todo._id} remove={props.remove} edit={props.edit} complete={props.completeTodo} />)
+                todoNode = props.visibleTodos.map((todo, indexOuter) => {
+                    console.log("TODO :", todo)
+                    return todo.map((item, index) => {
+
+
+
+                        return (<SingleTodo todo={item} key={item._id} remove={props.remove} edit={props.edit} complete={props.completeTodo} />)
+                    });
+
                 })
             ) : (
                 todoNode = (<li className="list-group-item">Nothing here</li>)
@@ -78,7 +92,9 @@ export class TodoApp extends React.Component {
         // Render all Todo items on component render
         this.props.dataInterface.getAllTodos('./api/todos')
             .then((data) => {
-                this.setState({ data: data })
+                let newData = this.groupTodosByDate(data);
+                console.log("New Data :", newData, data);
+                this.setState({ data: [newData] });
             })
             .catch((err) => {
                 console.log('Error in fetching all reacords', err);
@@ -222,6 +238,42 @@ export class TodoApp extends React.Component {
         });
     }
 
+
+    groupTodosByDate(data) {
+        var test = {};
+        //let stateData = this.state.data;
+        for (let i = 0; i < data.length; i++) {
+            let today1 = data[i].today.split("T")[0].replace(/-/g, ",");
+            if (test.hasOwnProperty(today1)) {
+                test[today1].push(data[i]);
+            } else {
+                test[today1] = [data[i]];
+            }
+        }
+
+        console.log("TEST 123:", test);
+
+        var grouppedData = data.reduce((acc, el) => {
+            let today = el.today.split("T")[0].replace(/-/g, ",");
+            if (acc.hasOwnProperty(today)) {
+                acc[today].push(el);
+            } else {
+                acc[today] = [el];
+            }
+            console.log("555 :", acc, el)
+            return acc;
+        }, {});
+
+        /* let temp = Object.keys(grouppedData).map(function (k) {
+            console.log("K :", k, grouppedData, grouppedData[k]);
+
+            return grouppedData[k];
+        }); */
+
+        //console.log("Temp ::", temp);
+        return grouppedData;
+    }
+
     changeVisibilityFilter(visibilityFilter) {
         this.setState({ visibilityFilter: visibilityFilter });
     }
@@ -229,7 +281,7 @@ export class TodoApp extends React.Component {
     render() {
 
         let visibleTodosArray = this.visibleTodos();
-        console.log('visibleTodos :', visibleTodosArray);
+        console.log('visibleTodos :', this.state.data);
         return (
             <main>
                 <Header />
