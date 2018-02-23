@@ -27,6 +27,7 @@ const SingleTodo = (props) => {
         <li className={"list-group-item " + (props.todo.isDone ? "done" : "")}>
             <label htmlFor={'todoStatus_' + props.todo._id}>
                 <input name="todoStatus[]" id={'todoStatus_' + props.todo._id} type="checkbox" value={props.todo._id} onChange={toggleTodoStatus.bind(this)} checked={props.todo.isDone} /> {props.todo.title} <span className={"badge " + (props.todo.isDone ? 'badge-success' : 'badge-primary')}>{props.todo.status}</span>
+                <span>{props.todo.today}</span>
             </label>
 
             <button className="btn btn-danger float-right" onClick={() => { props.remove(props.todo._id) }}>Delete</button>
@@ -82,8 +83,9 @@ export class TodoApp extends React.Component {
             .catch((err) => {
                 console.log('Error in fetching all reacords', err);
             });
-
     }
+
+
 
     // Add Todo item
     addTodo(value, id) {
@@ -198,6 +200,8 @@ export class TodoApp extends React.Component {
     }
 
     visibleTodos() {
+        this.orderByDate(this.state.data, 'today');
+
         switch (this.state.visibilityFilter) {
             case 'ALL_TODOS':
                 return this.state.data;
@@ -208,6 +212,14 @@ export class TodoApp extends React.Component {
             default:
                 return this.state.data;
         }
+    }
+
+    orderByDate(arr, dateProp) {
+        console.log("Date :", arr, dateProp);
+        return arr.slice().sort(function (a, b) {
+            console.log("Date :", a[dateProp] < b[dateProp]);
+            return a[dateProp] < b[dateProp] ? -1 : 1;
+        });
     }
 
     changeVisibilityFilter(visibilityFilter) {

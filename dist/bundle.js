@@ -1016,6 +1016,11 @@ var SingleTodo = function SingleTodo(props) {
                 'span',
                 { className: "badge " + (props.todo.isDone ? 'badge-success' : 'badge-primary') },
                 props.todo.status
+            ),
+            _react2.default.createElement(
+                'span',
+                null,
+                props.todo.today
             )
         ),
         _react2.default.createElement(
@@ -1220,6 +1225,8 @@ var TodoApp = exports.TodoApp = function (_React$Component) {
     }, {
         key: 'visibleTodos',
         value: function visibleTodos() {
+            this.orderByDate(this.state.data, 'today');
+
             switch (this.state.visibilityFilter) {
                 case 'ALL_TODOS':
                     return this.state.data;
@@ -1234,6 +1241,15 @@ var TodoApp = exports.TodoApp = function (_React$Component) {
                 default:
                     return this.state.data;
             }
+        }
+    }, {
+        key: 'orderByDate',
+        value: function orderByDate(arr, dateProp) {
+            console.log("Date :", arr, dateProp);
+            return arr.slice().sort(function (a, b) {
+                console.log("Date :", a[dateProp] < b[dateProp]);
+                return a[dateProp] < b[dateProp] ? -1 : 1;
+            });
         }
     }, {
         key: 'changeVisibilityFilter',
@@ -18627,7 +18643,7 @@ var Header = exports.Header = function Header() {
         _react2.default.createElement(
             "h5",
             { className: "my-0 mr-md-auto font-weight-normal" },
-            "Company name"
+            "TODO Application"
         ),
         _react2.default.createElement(
             "nav",
