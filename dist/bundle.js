@@ -1027,7 +1027,7 @@ var SingleTodo = function SingleTodo(props) {
         _react2.default.createElement(
             'button',
             { className: 'btn btn-danger float-right', onClick: function onClick() {
-                    props.remove(props.todo._id);
+                    props.remove(props.todo._id, props.todo.today.split("T")[0].replace(/-/g, ","));
                 } },
             'Delete'
         ),
@@ -1079,7 +1079,7 @@ var TodoGroupList = function TodoGroupList(props) {
                         k
                     )
                 ),
-                _react2.default.createElement(TodoList, { visibleTodos: props.visibleTodos, k: k })
+                _react2.default.createElement(TodoList, { visibleTodos: props.visibleTodos, k: k, remove: props.remove, edit: props.edit, complete: props.completeTodo })
             );
         });
     }
@@ -1149,12 +1149,26 @@ var TodoApp = exports.TodoApp = function (_React$Component) {
                 }).then(function (response) {
                     return response.json();
                 }).then(function (data) {
-                    _this3.state.data.find(function (todo, index) {
-                        if (todo._id === id) {
-                            _this3.state.data.splice(index, 1, data);
-                        }
+                    var filteredData = {};
+
+                    Object.keys(_this3.state.data).map(function (date) {
+                        _this3.state.data[date].find(function (todo, index) {
+                            if (todo._id === id) {
+                                if (filteredData.hasOwnProperty(date)) {
+                                    filteredData[date].splice(index, 1, todo);
+                                } else {
+                                    filteredData[date] = [todo];
+                                }
+                            }
+                        });
                     });
-                    _this3.setState({ data: _this3.state.data });
+
+                    /* this.state.data.find((todo, index) => {
+                        if (todo._id === id) {
+                            this.state.data.splice(index, 1, data);
+                        }
+                    }); */
+                    _this3.setState({ data: filteredData });
                 }).catch(function (err) {
                     console.log('Error in updating TODO to database.');
                 });
@@ -1174,7 +1188,12 @@ var TodoApp = exports.TodoApp = function (_React$Component) {
                 }).then(function (response) {
                     return response.json();
                 }).then(function (data) {
-                    _this3.state.data.push(data);
+                    //this.state.data.push(data);
+                    //this.setState({ data: this.state.data });
+                    var date = data.today.split("T")[0].replace(/-/g, ",");
+                    _this3.state.data[date] = [];
+                    _this3.setState({ data: _this3.state.data });
+                    _this3.state.data[date].push(data);
                     _this3.setState({ data: _this3.state.data });
                 }).catch(function (err) {
                     console.log('Error in adding TODO to database.', err);
@@ -1187,10 +1206,25 @@ var TodoApp = exports.TodoApp = function (_React$Component) {
     }, {
         key: 'editTodo',
         value: function editTodo(todoId) {
-            var remainder = this.state.data.filter(function (todo) {
-                if (todo._id === todoId) return todo;
-            });
+            var _this4 = this;
 
+            /* const remainder = this.state.data.filter((todo) => {
+                if (todo._id === todoId) return todo;
+            }); */
+
+            var remainder = Object.keys(this.state.data).map(function (date) {
+                return _this4.state.data[date].filter(function (todo, index) {
+                    if (todo._id === todoId) {
+                        return todo;
+                        /* if (filteredData.hasOwnProperty(date)) {
+                            filteredData[date].push(todo);
+                        } else {
+                            filteredData[date] = [todo];
+                        } */
+                    }
+                });
+            });
+            console.log('remainder :', remainder[0]);
             this.setState({ isEditing: true, editTodo: remainder[0] });
         }
 
@@ -1198,12 +1232,25 @@ var TodoApp = exports.TodoApp = function (_React$Component) {
 
     }, {
         key: 'removeTodo',
-        value: function removeTodo(id) {
-            var _this4 = this;
+        value: function removeTodo(id, date) {
+            var _this5 = this;
 
             // Filter all todos except the one to be removed
-            var remainder = this.state.data.filter(function (todo) {
+            /* const remainder = this.state.data[date].filter((todo) => {
                 if (todo._id !== id) return todo;
+            }); */
+
+            var filteredData = {};
+            Object.keys(this.state.data).map(function (date) {
+                _this5.state.data[date].filter(function (todo, index) {
+                    if (todo._id !== id) {
+                        if (filteredData.hasOwnProperty(date)) {
+                            filteredData[date].push(todo);
+                        } else {
+                            filteredData[date] = [todo];
+                        }
+                    }
+                });
             });
 
             // Update state with filter
@@ -1217,7 +1264,7 @@ var TodoApp = exports.TodoApp = function (_React$Component) {
                     // "Content-type": "application/x-www-form-urlencoded; charset=UTF-8"
                 })
             }).then(function (response) {
-                _this4.setState({ data: remainder });
+                _this5.setState({ data: filteredData });
             }).catch(function (err) {
                 console.log('Removed Todo item successfully from database.', err);
             });
@@ -1225,7 +1272,7 @@ var TodoApp = exports.TodoApp = function (_React$Component) {
     }, {
         key: 'completeTodo',
         value: function completeTodo(todoId, isDone) {
-            var _this5 = this;
+            var _this6 = this;
 
             // Mark todo ad Complete or Pending
             fetch('./api/completeTodo', {
@@ -1240,12 +1287,12 @@ var TodoApp = exports.TodoApp = function (_React$Component) {
             }).then(function (response) {
                 return response.json();
             }).then(function (data) {
-                _this5.state.data.find(function (todo, index) {
+                _this6.state.data.find(function (todo, index) {
                     if (todo._id === todoId) {
-                        _this5.state.data.splice(index, 1, data);
+                        _this6.state.data.splice(index, 1, data);
                     }
                 });
-                _this5.setState({ data: _this5.state.data });
+                _this6.setState({ data: _this6.state.data });
             }).catch(function (err) {
                 console.log('Error in completing TODO to database.', err);
             });
@@ -1253,7 +1300,7 @@ var TodoApp = exports.TodoApp = function (_React$Component) {
     }, {
         key: 'visibleTodos',
         value: function visibleTodos() {
-            var _this6 = this;
+            var _this7 = this;
 
             //this.orderByDate(this.state.data, 'today');
             var filteredData = {};
@@ -1265,7 +1312,7 @@ var TodoApp = exports.TodoApp = function (_React$Component) {
                     // return this.state.data.filter(todo => todo.isDone === false);
 
                     Object.keys(this.state.data).map(function (date) {
-                        _this6.state.data[date].filter(function (todo, index) {
+                        _this7.state.data[date].filter(function (todo, index) {
                             if (todo.isDone === false) {
                                 if (filteredData.hasOwnProperty(date)) {
                                     filteredData[date].push(todo);
@@ -1280,7 +1327,7 @@ var TodoApp = exports.TodoApp = function (_React$Component) {
                 case 'COMPLETED_TODOS':
 
                     Object.keys(this.state.data).map(function (date) {
-                        _this6.state.data[date].filter(function (todo) {
+                        _this7.state.data[date].filter(function (todo) {
                             if (todo.isDone === true) {
                                 if (filteredData.hasOwnProperty(date)) {
                                     filteredData[date].push(todo);
@@ -1330,7 +1377,7 @@ var TodoApp = exports.TodoApp = function (_React$Component) {
     }, {
         key: 'render',
         value: function render() {
-            var _this7 = this;
+            var _this8 = this;
 
             var visibleTodosArray = this.visibleTodos();
             console.log('visibleTodos :', this.state.data);
@@ -1362,10 +1409,10 @@ var TodoApp = exports.TodoApp = function (_React$Component) {
                             return _react2.default.createElement(
                                 'button',
                                 {
-                                    className: "btn " + (_this7.state.visibilityFilter === visibilityFilter ? "btn-primary" : "btn-outline-primary"),
+                                    className: "btn " + (_this8.state.visibilityFilter === visibilityFilter ? "btn-primary" : "btn-outline-primary"),
                                     key: visibilityFilter,
                                     onClick: function onClick() {
-                                        return _this7.changeVisibilityFilter(visibilityFilter);
+                                        return _this8.changeVisibilityFilter(visibilityFilter);
                                     } },
                                 visibilityFilter.replace("_", " ")
                             );

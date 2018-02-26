@@ -31,7 +31,7 @@ const SingleTodo = (props) => {
                 <span>{props.todo.today}</span>
             </label>
 
-            <button className="btn btn-danger float-right" onClick={() => { props.remove(props.todo._id) }}>Delete</button>
+            <button className="btn btn-danger float-right" onClick={() => { props.remove(props.todo._id, props.todo.today.split("T")[0].replace(/-/g, ",")) }}>Delete</button>
             <button className="btn btn-primary float-right" onClick={() => { props.edit(props.todo._id) }}>Edit</button>
         </li>);
 }
@@ -66,7 +66,7 @@ const TodoGroupList = (props) => {
             return (
                 <div key={k}>
                     <p><strong>{k}</strong></p>
-                    <TodoList visibleTodos={props.visibleTodos} k={k} />
+                    <TodoList visibleTodos={props.visibleTodos} k={k} remove={props.remove} edit={props.edit} complete={props.completeTodo} />
                 </div>
             );
         })
@@ -122,12 +122,26 @@ export class TodoApp extends React.Component {
             })
                 .then((response) => response.json())
                 .then((data) => {
-                    this.state.data.find((todo, index) => {
+let filteredData = {};
+
+                    Object.keys(this.state.data).map((date) => {
+                        this.state.data[date].find((todo, index) => {
+                            if (todo._id === id) {
+                                if (filteredData.hasOwnProperty(date)) {
+                                    filteredData[date].splice(index, 1, todo);
+                                } else {
+                                    filteredData[date] = [todo];
+                                }
+                            }
+                        });
+                    });
+
+                    /* this.state.data.find((todo, index) => {
                         if (todo._id === id) {
                             this.state.data.splice(index, 1, data);
                         }
-                    });
-                    this.setState({ data: this.state.data });
+                    }); */
+                    this.setState({ data: filteredData });
                 })
                 .catch((err) => {
                     console.log('Error in updating TODO to database.');
@@ -148,7 +162,12 @@ export class TodoApp extends React.Component {
             })
                 .then((response) => response.json())
                 .then((data) => {
-                    this.state.data.push(data);
+                    //this.state.data.push(data);
+                    //this.setState({ data: this.state.data });
+                    let date = data.today.split("T")[0].replace(/-/g, ",");
+                    this.state.data[date] = [];
+                    this.setState({ data: this.state.data });
+                    this.state.data[date].push(data);
                     this.setState({ data: this.state.data });
                 })
                 .catch((err) => {
@@ -159,18 +178,44 @@ export class TodoApp extends React.Component {
 
     // Edit Todo item
     editTodo(todoId) {
-        const remainder = this.state.data.filter((todo) => {
+        /* const remainder = this.state.data.filter((todo) => {
             if (todo._id === todoId) return todo;
-        });
+        }); */
 
+        let remainder = Object.keys(this.state.data).map((date) => {
+            return this.state.data[date].filter((todo, index) => {
+                if (todo._id === todoId) {
+                    return todo
+                    /* if (filteredData.hasOwnProperty(date)) {
+                        filteredData[date].push(todo);
+                    } else {
+                        filteredData[date] = [todo];
+                    } */
+                }
+            });
+        });
+console.log('remainder :', remainder[0])
         this.setState({ isEditing: true, editTodo: remainder[0] });
     }
 
     // Remove Todo item
-    removeTodo(id) {
+    removeTodo(id, date) {
         // Filter all todos except the one to be removed
-        const remainder = this.state.data.filter((todo) => {
+        /* const remainder = this.state.data[date].filter((todo) => {
             if (todo._id !== id) return todo;
+        }); */
+
+        let filteredData = {};
+        Object.keys(this.state.data).map((date) => {
+            this.state.data[date].filter((todo, index) => {
+                if (todo._id !== id) {
+                    if (filteredData.hasOwnProperty(date)) {
+                        filteredData[date].push(todo);
+                    } else {
+                        filteredData[date] = [todo];
+                    }
+                }
+            });
         });
 
         // Update state with filter
@@ -185,7 +230,7 @@ export class TodoApp extends React.Component {
             })
         })
             .then((response) => {
-                this.setState({ data: remainder })
+                this.setState({ data: filteredData })
             })
             .catch((err) => {
                 console.log('Removed Todo item successfully from database.', err);
