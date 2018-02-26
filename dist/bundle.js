@@ -1267,19 +1267,45 @@ var TodoApp = exports.TodoApp = function (_React$Component) {
     }, {
         key: 'visibleTodos',
         value: function visibleTodos() {
+            var _this6 = this;
+
             //this.orderByDate(this.state.data, 'today');
+            var filteredData = {};
 
             switch (this.state.visibilityFilter) {
                 case 'ALL_TODOS':
                     return this.state.data;
                 case 'ACTIVE_TODOS':
-                    return this.state.data.filter(function (todo) {
-                        return todo.isDone === false;
+                    // return this.state.data.filter(todo => todo.isDone === false);
+                    Object.keys(this.state.data).map(function (date) {
+                        _this6.state.data[date].filter(function (todo, index) {
+                            if (todo.isDone === false) {
+                                if (filteredData.hasOwnProperty(date)) {
+                                    filteredData[date].push(todo);
+                                } else {
+                                    filteredData[date] = [todo];
+                                }
+                            }
+                        });
                     });
+
+                    return filteredData;
                 case 'COMPLETED_TODOS':
-                    return this.state.data.filter(function (todo) {
-                        return todo.isDone === true;
+
+                    Object.keys(this.state.data).map(function (date) {
+                        _this6.state.data[date].filter(function (todo) {
+                            if (todo.isDone === true) {
+                                if (filteredData.hasOwnProperty(date)) {
+                                    filteredData[date].push(todo);
+                                } else {
+                                    filteredData[date] = [todo];
+                                }
+                            }
+                        });
                     });
+
+                    return filteredData;
+                //return this.state.data.filter(todo => todo.isDone === true);
                 default:
                     return this.state.data;
             }
@@ -1336,7 +1362,7 @@ var TodoApp = exports.TodoApp = function (_React$Component) {
     }, {
         key: 'render',
         value: function render() {
-            var _this6 = this;
+            var _this7 = this;
 
             var visibleTodosArray = this.visibleTodos();
             console.log('visibleTodos :', this.state.data);
@@ -1368,10 +1394,10 @@ var TodoApp = exports.TodoApp = function (_React$Component) {
                             return _react2.default.createElement(
                                 'button',
                                 {
-                                    className: "btn " + (_this6.state.visibilityFilter === visibilityFilter ? "btn-primary" : "btn-outline-primary"),
+                                    className: "btn " + (_this7.state.visibilityFilter === visibilityFilter ? "btn-primary" : "btn-outline-primary"),
                                     key: visibilityFilter,
                                     onClick: function onClick() {
-                                        return _this6.changeVisibilityFilter(visibilityFilter);
+                                        return _this7.changeVisibilityFilter(visibilityFilter);
                                     } },
                                 visibilityFilter.replace("_", " ")
                             );

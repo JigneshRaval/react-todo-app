@@ -238,14 +238,42 @@ export class TodoApp extends React.Component {
 
     visibleTodos() {
         //this.orderByDate(this.state.data, 'today');
+        let filteredData = {};
 
         switch (this.state.visibilityFilter) {
             case 'ALL_TODOS':
                 return this.state.data;
             case 'ACTIVE_TODOS':
-                return this.state.data.filter(todo => todo.isDone === false);
+                // return this.state.data.filter(todo => todo.isDone === false);
+                Object.keys(this.state.data).map((date) => {
+                    this.state.data[date].filter((todo, index) => {
+                        if (todo.isDone === false) {
+                            if (filteredData.hasOwnProperty(date)) {
+                                filteredData[date].push(todo);
+                            } else {
+                                filteredData[date] = [todo];
+                            }
+                        }
+                    });
+                });
+
+                return filteredData;
             case 'COMPLETED_TODOS':
-                return this.state.data.filter(todo => todo.isDone === true);
+
+                Object.keys(this.state.data).map(date => {
+                    this.state.data[date].filter(todo => {
+                        if (todo.isDone === true) {
+                            if (filteredData.hasOwnProperty(date)) {
+                                filteredData[date].push(todo);
+                            } else {
+                                filteredData[date] = [todo];
+                            }
+                        }
+                    })
+                });
+
+                return filteredData;
+            //return this.state.data.filter(todo => todo.isDone === true);
             default:
                 return this.state.data;
         }
