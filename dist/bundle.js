@@ -1041,26 +1041,11 @@ var SingleTodo = function SingleTodo(props) {
     );
 };
 
-// 2. Todo List
-// ==============================
 var TodoList = function TodoList(props) {
-    // props = { todos, remove, edit, completeTodo }
-    // Map through the todos
-    console.log("List :", props.visibleTodos[0]);
     var todoNode = void 0;
-    /*let temp = Object.keys(props.visibleTodos).map(function (k) {
-        console.log("K :", k, props.visibleTodos, props.visibleTodos[k]);
-          return props.visibleTodos[k];
-    });
-      console.log("List 2 :", temp); */
-    // If VisibleTodos length is greater then zero
     {
-        props.visibleTodos.length > 0 ? todoNode = props.visibleTodos.map(function (todo, indexOuter) {
-            console.log("TODO :", todo);
-            return todo.map(function (item, index) {
-
-                return _react2.default.createElement(SingleTodo, { todo: item, key: item._id, remove: props.remove, edit: props.edit, complete: props.completeTodo });
-            });
+        props.visibleTodos[props.k].length > 0 ? todoNode = props.visibleTodos[props.k].map(function (todo, indexOuter) {
+            return _react2.default.createElement(SingleTodo, { todo: todo, key: todo._id, remove: props.remove, edit: props.edit, complete: props.completeTodo });
         }) : todoNode = _react2.default.createElement(
             'li',
             { className: 'list-group-item' },
@@ -1068,10 +1053,56 @@ var TodoList = function TodoList(props) {
         );
     }
 
+    return todoNode;
+};
+
+// 2. Todo List
+// ==============================
+var TodoGroupList = function TodoGroupList(props) {
+    // props = { todos, remove, edit, completeTodo }
+    // Map through the todos
+    console.log("List :", props.visibleTodos);
+    var groupList = void 0;
+    /*let temp = Object.keys(props.visibleTodos).map(function (k) {
+        console.log("K :", k, props.visibleTodos, props.visibleTodos[k]);
+          return props.visibleTodos[k];
+    });
+      console.log("List 2 :", temp); */
+    // If VisibleTodos length is greater then zero
+    {
+        groupList = Object.keys(props.visibleTodos).map(function (k) {
+
+            return _react2.default.createElement(
+                'div',
+                { key: k },
+                _react2.default.createElement(
+                    'p',
+                    null,
+                    _react2.default.createElement(
+                        'strong',
+                        null,
+                        k
+                    )
+                ),
+                _react2.default.createElement(TodoList, { visibleTodos: props.visibleTodos, k: k })
+            );
+            /* props.visibleTodos[k].length > 0 ?
+            (
+                todoNode = props.visibleTodos[k].map((todo, indexOuter) => {
+                    console.log("TODO :", todo)
+                        return (<SingleTodo todo={todo} key={todo._id} key="indexOuter" remove={props.remove} edit={props.edit} complete={props.completeTodo} />)
+                })
+            ) : (
+                todoNode = (<li className="list-group-item">Nothing here</li>)
+            ) */
+        });
+    }
+
+    //return (<div>{groupList}<ul className="list-group" style={{ marginTop: '30px' }}>{todoNode}</ul></div>);
     return _react2.default.createElement(
-        'ul',
-        { className: 'list-group', style: { marginTop: '30px' } },
-        todoNode
+        'div',
+        null,
+        groupList
     );
 };
 
@@ -1088,7 +1119,7 @@ var TodoApp = exports.TodoApp = function (_React$Component) {
 
         _this.visibilityFilters = ["ALL_TODOS", "ACTIVE_TODOS", "COMPLETED_TODOS"];
         _this.state = {
-            data: [],
+            data: {},
             isEditing: false,
             editTodo: {},
             visibilityFilter: "ALL_TODOS"
@@ -1105,7 +1136,7 @@ var TodoApp = exports.TodoApp = function (_React$Component) {
             this.props.dataInterface.getAllTodos('./api/todos').then(function (data) {
                 var newData = _this2.groupTodosByDate(data);
                 console.log("New Data :", newData, data);
-                _this2.setState({ data: [newData] });
+                _this2.setState({ data: newData });
             }).catch(function (err) {
                 console.log('Error in fetching all reacords', err);
             });
@@ -1236,7 +1267,7 @@ var TodoApp = exports.TodoApp = function (_React$Component) {
     }, {
         key: 'visibleTodos',
         value: function visibleTodos() {
-            this.orderByDate(this.state.data, 'today');
+            //this.orderByDate(this.state.data, 'today');
 
             switch (this.state.visibilityFilter) {
                 case 'ALL_TODOS':
@@ -1323,7 +1354,7 @@ var TodoApp = exports.TodoApp = function (_React$Component) {
                         { className: 'text-center' },
                         this.state.visibilityFilter.replace('_', ' ')
                     ),
-                    _react2.default.createElement(TodoList, {
+                    _react2.default.createElement(TodoGroupList, {
                         todos: this.state.data,
                         visibleTodos: visibleTodosArray,
                         completeTodo: this.completeTodo.bind(this),

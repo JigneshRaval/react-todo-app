@@ -36,14 +36,29 @@ const SingleTodo = (props) => {
         </li>);
 }
 
+const TodoList = (props) => {
+    let todoNode;
+    {
+        props.visibleTodos[props.k].length > 0 ?
+            (
+                todoNode = props.visibleTodos[props.k].map((todo, indexOuter) => {
+                    return (<SingleTodo todo={todo} key={todo._id} remove={props.remove} edit={props.edit} complete={props.completeTodo} />)
+                })
+            ) : (
+                todoNode = (<li className="list-group-item">Nothing here</li>)
+            )
+    }
+
+    return todoNode;
+}
 
 // 2. Todo List
 // ==============================
-const TodoList = (props) => {
+const TodoGroupList = (props) => {
     // props = { todos, remove, edit, completeTodo }
     // Map through the todos
-    console.log("List :", props.visibleTodos[0]);
-    let todoNode;
+    console.log("List :", props.visibleTodos);
+    let groupList;
     /*let temp = Object.keys(props.visibleTodos).map(function (k) {
         console.log("K :", k, props.visibleTodos, props.visibleTodos[k]);
 
@@ -53,24 +68,30 @@ const TodoList = (props) => {
     console.log("List 2 :", temp); */
     // If VisibleTodos length is greater then zero
     {
-        props.visibleTodos.length > 0 ?
+        groupList = Object.keys(props.visibleTodos).map(function (k) {
+
+            return (
+                <div key={k}>
+                    <p><strong>{k}</strong></p>
+                    <TodoList visibleTodos={props.visibleTodos} k={k} />
+                </div>
+            );
+            /* props.visibleTodos[k].length > 0 ?
             (
-                todoNode = props.visibleTodos.map((todo, indexOuter) => {
+                todoNode = props.visibleTodos[k].map((todo, indexOuter) => {
                     console.log("TODO :", todo)
-                    return todo.map((item, index) => {
-
-
-
-                        return (<SingleTodo todo={item} key={item._id} remove={props.remove} edit={props.edit} complete={props.completeTodo} />)
-                    });
-
+                        return (<SingleTodo todo={todo} key={todo._id} key="indexOuter" remove={props.remove} edit={props.edit} complete={props.completeTodo} />)
                 })
             ) : (
                 todoNode = (<li className="list-group-item">Nothing here</li>)
-            )
+            ) */
+
+
+        })
     }
 
-    return (<ul className="list-group" style={{ marginTop: '30px' }}>{todoNode}</ul>);
+    //return (<div>{groupList}<ul className="list-group" style={{ marginTop: '30px' }}>{todoNode}</ul></div>);
+    return (<div>{groupList}</div>);
 }
 
 
@@ -81,7 +102,7 @@ export class TodoApp extends React.Component {
         super(props);
         this.visibilityFilters = ["ALL_TODOS", "ACTIVE_TODOS", "COMPLETED_TODOS"];
         this.state = {
-            data: [],
+            data: {},
             isEditing: false,
             editTodo: {},
             visibilityFilter: "ALL_TODOS"
@@ -94,7 +115,7 @@ export class TodoApp extends React.Component {
             .then((data) => {
                 let newData = this.groupTodosByDate(data);
                 console.log("New Data :", newData, data);
-                this.setState({ data: [newData] });
+                this.setState({ data: newData });
             })
             .catch((err) => {
                 console.log('Error in fetching all reacords', err);
@@ -216,7 +237,7 @@ export class TodoApp extends React.Component {
     }
 
     visibleTodos() {
-        this.orderByDate(this.state.data, 'today');
+        //this.orderByDate(this.state.data, 'today');
 
         switch (this.state.visibilityFilter) {
             case 'ALL_TODOS':
@@ -289,7 +310,7 @@ export class TodoApp extends React.Component {
                     <Title todoCount={this.state.data.length} />
                     <TodoForm isEditing={this.state.isEditing} editTodo={this.state.editTodo} addTodo={this.addTodo.bind(this)} />
                     <h3 className="text-center">{this.state.visibilityFilter.replace('_', ' ')}</h3>
-                    <TodoList
+                    <TodoGroupList
                         todos={this.state.data}
                         visibleTodos={visibleTodosArray}
                         completeTodo={this.completeTodo.bind(this)}
