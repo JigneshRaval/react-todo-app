@@ -57,15 +57,8 @@ const TodoList = (props) => {
 const TodoGroupList = (props) => {
     // props = { todos, remove, edit, completeTodo }
     // Map through the todos
-    console.log("List :", props.visibleTodos);
     let groupList;
-    /*let temp = Object.keys(props.visibleTodos).map(function (k) {
-        console.log("K :", k, props.visibleTodos, props.visibleTodos[k]);
 
-        return props.visibleTodos[k];
-    });
-
-    console.log("List 2 :", temp); */
     // If VisibleTodos length is greater then zero
     {
         groupList = Object.keys(props.visibleTodos).map(function (k) {
@@ -76,17 +69,6 @@ const TodoGroupList = (props) => {
                     <TodoList visibleTodos={props.visibleTodos} k={k} />
                 </div>
             );
-            /* props.visibleTodos[k].length > 0 ?
-            (
-                todoNode = props.visibleTodos[k].map((todo, indexOuter) => {
-                    console.log("TODO :", todo)
-                        return (<SingleTodo todo={todo} key={todo._id} key="indexOuter" remove={props.remove} edit={props.edit} complete={props.completeTodo} />)
-                })
-            ) : (
-                todoNode = (<li className="list-group-item">Nothing here</li>)
-            ) */
-
-
         })
     }
 
@@ -245,6 +227,7 @@ export class TodoApp extends React.Component {
                 return this.state.data;
             case 'ACTIVE_TODOS':
                 // return this.state.data.filter(todo => todo.isDone === false);
+
                 Object.keys(this.state.data).map((date) => {
                     this.state.data[date].filter((todo, index) => {
                         if (todo.isDone === false) {
@@ -289,19 +272,6 @@ export class TodoApp extends React.Component {
 
 
     groupTodosByDate(data) {
-        var test = {};
-        //let stateData = this.state.data;
-        for (let i = 0; i < data.length; i++) {
-            let today1 = data[i].today.split("T")[0].replace(/-/g, ",");
-            if (test.hasOwnProperty(today1)) {
-                test[today1].push(data[i]);
-            } else {
-                test[today1] = [data[i]];
-            }
-        }
-
-        console.log("TEST 123:", test);
-
         var grouppedData = data.reduce((acc, el) => {
             let today = el.today.split("T")[0].replace(/-/g, ",");
             if (acc.hasOwnProperty(today)) {
@@ -313,13 +283,6 @@ export class TodoApp extends React.Component {
             return acc;
         }, {});
 
-        /* let temp = Object.keys(grouppedData).map(function (k) {
-            console.log("K :", k, grouppedData, grouppedData[k]);
-
-            return grouppedData[k];
-        }); */
-
-        //console.log("Temp ::", temp);
         return grouppedData;
     }
 

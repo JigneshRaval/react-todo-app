@@ -1061,13 +1061,8 @@ var TodoList = function TodoList(props) {
 var TodoGroupList = function TodoGroupList(props) {
     // props = { todos, remove, edit, completeTodo }
     // Map through the todos
-    console.log("List :", props.visibleTodos);
     var groupList = void 0;
-    /*let temp = Object.keys(props.visibleTodos).map(function (k) {
-        console.log("K :", k, props.visibleTodos, props.visibleTodos[k]);
-          return props.visibleTodos[k];
-    });
-      console.log("List 2 :", temp); */
+
     // If VisibleTodos length is greater then zero
     {
         groupList = Object.keys(props.visibleTodos).map(function (k) {
@@ -1086,15 +1081,6 @@ var TodoGroupList = function TodoGroupList(props) {
                 ),
                 _react2.default.createElement(TodoList, { visibleTodos: props.visibleTodos, k: k })
             );
-            /* props.visibleTodos[k].length > 0 ?
-            (
-                todoNode = props.visibleTodos[k].map((todo, indexOuter) => {
-                    console.log("TODO :", todo)
-                        return (<SingleTodo todo={todo} key={todo._id} key="indexOuter" remove={props.remove} edit={props.edit} complete={props.completeTodo} />)
-                })
-            ) : (
-                todoNode = (<li className="list-group-item">Nothing here</li>)
-            ) */
         });
     }
 
@@ -1277,6 +1263,7 @@ var TodoApp = exports.TodoApp = function (_React$Component) {
                     return this.state.data;
                 case 'ACTIVE_TODOS':
                     // return this.state.data.filter(todo => todo.isDone === false);
+
                     Object.keys(this.state.data).map(function (date) {
                         _this6.state.data[date].filter(function (todo, index) {
                             if (todo.isDone === false) {
@@ -1322,19 +1309,6 @@ var TodoApp = exports.TodoApp = function (_React$Component) {
     }, {
         key: 'groupTodosByDate',
         value: function groupTodosByDate(data) {
-            var test = {};
-            //let stateData = this.state.data;
-            for (var i = 0; i < data.length; i++) {
-                var today1 = data[i].today.split("T")[0].replace(/-/g, ",");
-                if (test.hasOwnProperty(today1)) {
-                    test[today1].push(data[i]);
-                } else {
-                    test[today1] = [data[i]];
-                }
-            }
-
-            console.log("TEST 123:", test);
-
             var grouppedData = data.reduce(function (acc, el) {
                 var today = el.today.split("T")[0].replace(/-/g, ",");
                 if (acc.hasOwnProperty(today)) {
@@ -1346,12 +1320,6 @@ var TodoApp = exports.TodoApp = function (_React$Component) {
                 return acc;
             }, {});
 
-            /* let temp = Object.keys(grouppedData).map(function (k) {
-                console.log("K :", k, grouppedData, grouppedData[k]);
-                  return grouppedData[k];
-            }); */
-
-            //console.log("Temp ::", temp);
             return grouppedData;
         }
     }, {
