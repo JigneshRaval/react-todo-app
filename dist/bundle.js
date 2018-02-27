@@ -1149,16 +1149,10 @@ var TodoApp = exports.TodoApp = function (_React$Component) {
                 }).then(function (response) {
                     return response.json();
                 }).then(function (data) {
-                    var filteredData = {};
-
                     Object.keys(_this3.state.data).map(function (date) {
                         _this3.state.data[date].find(function (todo, index) {
                             if (todo._id === id) {
-                                if (filteredData.hasOwnProperty(date)) {
-                                    filteredData[date].splice(index, 1, todo);
-                                } else {
-                                    filteredData[date] = [todo];
-                                }
+                                _this3.state.data[date].splice(index, 1, data);
                             }
                         });
                     });
@@ -1168,7 +1162,7 @@ var TodoApp = exports.TodoApp = function (_React$Component) {
                             this.state.data.splice(index, 1, data);
                         }
                     }); */
-                    _this3.setState({ data: filteredData });
+                    _this3.setState({ data: _this3.state.data });
                 }).catch(function (err) {
                     console.log('Error in updating TODO to database.');
                 });
@@ -1191,7 +1185,9 @@ var TodoApp = exports.TodoApp = function (_React$Component) {
                     //this.state.data.push(data);
                     //this.setState({ data: this.state.data });
                     var date = data.today.split("T")[0].replace(/-/g, ",");
-                    _this3.state.data[date] = [];
+                    if (!_this3.state.data[date]) {
+                        _this3.state.data[date] = [];
+                    }
                     _this3.setState({ data: _this3.state.data });
                     _this3.state.data[date].push(data);
                     _this3.setState({ data: _this3.state.data });
@@ -1224,8 +1220,8 @@ var TodoApp = exports.TodoApp = function (_React$Component) {
                     }
                 });
             });
-            console.log('remainder :', remainder[0]);
-            this.setState({ isEditing: true, editTodo: remainder[0] });
+            console.log('remainder :', remainder[0][0]);
+            this.setState({ isEditing: true, editTodo: remainder[0][0] });
         }
 
         // Remove Todo item
@@ -1363,7 +1359,7 @@ var TodoApp = exports.TodoApp = function (_React$Component) {
                 } else {
                     acc[today] = [el];
                 }
-                console.log("555 :", acc, el);
+                //console.log("555 :", acc, el)
                 return acc;
             }, {});
 

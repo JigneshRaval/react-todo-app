@@ -122,16 +122,10 @@ export class TodoApp extends React.Component {
             })
                 .then((response) => response.json())
                 .then((data) => {
-let filteredData = {};
-
                     Object.keys(this.state.data).map((date) => {
                         this.state.data[date].find((todo, index) => {
                             if (todo._id === id) {
-                                if (filteredData.hasOwnProperty(date)) {
-                                    filteredData[date].splice(index, 1, todo);
-                                } else {
-                                    filteredData[date] = [todo];
-                                }
+                                this.state.data[date].splice(index, 1, data);
                             }
                         });
                     });
@@ -141,7 +135,7 @@ let filteredData = {};
                             this.state.data.splice(index, 1, data);
                         }
                     }); */
-                    this.setState({ data: filteredData });
+                    this.setState({ data: this.state.data });
                 })
                 .catch((err) => {
                     console.log('Error in updating TODO to database.');
@@ -165,7 +159,9 @@ let filteredData = {};
                     //this.state.data.push(data);
                     //this.setState({ data: this.state.data });
                     let date = data.today.split("T")[0].replace(/-/g, ",");
-                    this.state.data[date] = [];
+                    if (!this.state.data[date]) {
+                        this.state.data[date] = [];
+                    }
                     this.setState({ data: this.state.data });
                     this.state.data[date].push(data);
                     this.setState({ data: this.state.data });
@@ -194,8 +190,8 @@ let filteredData = {};
                 }
             });
         });
-console.log('remainder :', remainder[0])
-        this.setState({ isEditing: true, editTodo: remainder[0] });
+        console.log('remainder :', remainder[0][0])
+        this.setState({ isEditing: true, editTodo: remainder[0][0] });
     }
 
     // Remove Todo item
@@ -324,7 +320,7 @@ console.log('remainder :', remainder[0])
             } else {
                 acc[today] = [el];
             }
-            console.log("555 :", acc, el)
+            //console.log("555 :", acc, el)
             return acc;
         }, {});
 
