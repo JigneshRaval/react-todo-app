@@ -1005,7 +1005,6 @@ var SingleTodo = function SingleTodo(props) {
     return _react2.default.createElement(
         'li',
         { className: "list-group-item " + (props.todo.isDone ? "done" : "") },
-        props.todo.today.split("T")[0].replace(/-/g, ","),
         _react2.default.createElement(
             'label',
             { htmlFor: 'todoStatus_' + props.todo._id },
@@ -1017,11 +1016,6 @@ var SingleTodo = function SingleTodo(props) {
                 'span',
                 { className: "badge " + (props.todo.isDone ? 'badge-success' : 'badge-primary') },
                 props.todo.status
-            ),
-            _react2.default.createElement(
-                'span',
-                null,
-                props.todo.today
             )
         ),
         _react2.default.createElement(
@@ -1037,6 +1031,16 @@ var SingleTodo = function SingleTodo(props) {
                     props.edit(props.todo._id);
                 } },
             'Edit'
+        ),
+        _react2.default.createElement(
+            'p',
+            null,
+            'Date Created :',
+            _react2.default.createElement(
+                'span',
+                null,
+                props.todo.today.split("T")[0]
+            )
         )
     );
 };

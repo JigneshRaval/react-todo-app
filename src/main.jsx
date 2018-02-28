@@ -25,14 +25,14 @@ const SingleTodo = (props) => {
     // Each Todo
     return (
         <li className={"list-group-item " + (props.todo.isDone ? "done" : "")}>
-            {props.todo.today.split("T")[0].replace(/-/g, ",")}
             <label htmlFor={'todoStatus_' + props.todo._id}>
                 <input name="todoStatus[]" id={'todoStatus_' + props.todo._id} type="checkbox" value={props.todo._id} onChange={toggleTodoStatus.bind(this)} checked={props.todo.isDone} /> {props.todo.title} <span className={"badge " + (props.todo.isDone ? 'badge-success' : 'badge-primary')}>{props.todo.status}</span>
-                <span>{props.todo.today}</span>
             </label>
 
             <button className="btn btn-danger float-right" onClick={() => { props.remove(props.todo._id, props.todo.today.split("T")[0].replace(/-/g, ",")) }}>Delete</button>
             <button className="btn btn-primary float-right" onClick={() => { props.edit(props.todo._id) }}>Edit</button>
+
+            <p>Date Created :<span>{props.todo.today.split("T")[0]}</span></p>
         </li>);
 }
 
