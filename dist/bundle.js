@@ -1035,6 +1035,11 @@ var SingleTodo = function SingleTodo(props) {
         _react2.default.createElement(
             'p',
             null,
+            props.todo.description
+        ),
+        _react2.default.createElement(
+            'p',
+            null,
             'Date Created :',
             _react2.default.createElement(
                 'span',
@@ -1049,7 +1054,7 @@ var TodoList = function TodoList(props) {
     var todoNode = void 0;
     {
         props.visibleTodos[props.k].length > 0 ? todoNode = props.visibleTodos[props.k].map(function (todo, indexOuter) {
-            return _react2.default.createElement(SingleTodo, { todo: todo, key: todo._id, remove: props.remove, edit: props.edit, complete: props.completeTodo });
+            return _react2.default.createElement(SingleTodo, { todo: todo, key: todo._id, remove: props.remove, edit: props.edit, complete: props.complete });
         }) : todoNode = _react2.default.createElement(
             'li',
             { className: 'list-group-item' },
@@ -1136,14 +1141,14 @@ var TodoApp = exports.TodoApp = function (_React$Component) {
 
     }, {
         key: 'addTodo',
-        value: function addTodo(value, id) {
+        value: function addTodo(value, description, id) {
             var _this3 = this;
 
             if (id) {
                 // if Edit Mode on : Update data
                 fetch('./api/updateTodo', {
                     method: 'PUT',
-                    body: JSON.stringify({ id: id, title: value, status: 'pending', isDone: false }),
+                    body: JSON.stringify({ id: id, title: value, status: 'pending', isDone: false, description: description }),
                     mode: 'cors',
                     redirect: 'follow',
                     headers: new Headers({
@@ -1176,7 +1181,7 @@ var TodoApp = exports.TodoApp = function (_React$Component) {
                 // Else Edit mode Off : Only Add new record
                 fetch('./api/addTodo', {
                     method: 'POST',
-                    body: JSON.stringify({ title: value, status: 'pending', isDone: false }),
+                    body: JSON.stringify({ title: value, status: 'pending', isDone: false, description: description }),
                     mode: 'cors',
                     redirect: 'follow',
                     headers: new Headers({
@@ -1287,11 +1292,20 @@ var TodoApp = exports.TodoApp = function (_React$Component) {
             }).then(function (response) {
                 return response.json();
             }).then(function (data) {
-                _this6.state.data.find(function (todo, index) {
+                /* this.state.data.find((todo, index) => {
                     if (todo._id === todoId) {
-                        _this6.state.data.splice(index, 1, data);
+                        this.state.data.splice(index, 1, data);
                     }
+                }); */
+
+                Object.keys(_this6.state.data).map(function (date) {
+                    _this6.state.data[date].find(function (todo, index) {
+                        if (todo._id === todoId) {
+                            _this6.state.data[date].splice(index, 1, data);
+                        }
+                    });
                 });
+
                 _this6.setState({ data: _this6.state.data });
             }).catch(function (err) {
                 console.log('Error in completing TODO to database.', err);
@@ -18866,7 +18880,7 @@ var TodoForm = function (_React$Component) {
 
         var _this = _possibleConstructorReturn(this, (TodoForm.__proto__ || Object.getPrototypeOf(TodoForm)).call(this, props));
 
-        _this.state = { value: '' };
+        _this.state = { title: '', description: '' };
         _this.input;
         _this.handleSubmit = _this.handleSubmit.bind(_this);
         return _this;
@@ -18876,28 +18890,34 @@ var TodoForm = function (_React$Component) {
         key: 'handleChange',
         value: function handleChange(event) {
             this.setState({
-                value: event.target.value
+                title: this.title.value,
+                description: this.description.value
             });
+
+            console.log(this.state);
         }
     }, {
         key: 'componentWillReceiveProps',
         value: function componentWillReceiveProps(nextProps) {
+            console.log("111 :", nextProps);
             if (!nextProps.editTodo.title) {
-                this.setState({ value: '' });
+                this.setState({ title: '', description: '' });
             } else if (this.props.editTodo.title === nextProps.editTodo.title) {} else {
-                this.setState({ value: nextProps.editTodo.title });
+                this.setState({ title: nextProps.editTodo.title, description: this.description.value });
             }
         }
     }, {
         key: 'handleSubmit',
         value: function handleSubmit(event) {
             event.preventDefault();
+            this.setState({ title: this.title.value, description: this.description.value });
             var newTodoTitle = event.target.querySelector('input');
-
+            console.log(this.title.value, this.description.value);
             if (this.props.isEditing) {
-                this.props.addTodo(newTodoTitle.value, this.props.editTodo._id);
+                //this.props.addTodo(newTodoTitle.value, this.props.editTodo._id);
+                this.props.addTodo(this.title.value, this.description.value, this.props.editTodo._id);
             } else {
-                this.props.addTodo(this.state.value, '');
+                this.props.addTodo(this.state.title, this.description.value, '');
             }
             newTodoTitle.value = '';
         }
@@ -18911,11 +18931,17 @@ var TodoForm = function (_React$Component) {
                 'form',
                 { onSubmit: this.handleSubmit },
                 _react2.default.createElement('input', { className: 'form-control col-md-12 add-form',
-                    ref: function ref(input) {
-                        return _this2.input = input;
+                    ref: function ref(title) {
+                        return _this2.title = title;
                     },
-                    value: this.state.value,
-                    onChange: this.handleChange.bind(this) }),
+                    onChange: this.handleChange.bind(this)
+                }),
+                _react2.default.createElement('textarea', { className: 'form-control col-md-12', rows: '5', cols: '50',
+                    ref: function ref(description) {
+                        return _this2.description = description;
+                    }
+
+                }),
                 _react2.default.createElement('br', null)
             );
         }

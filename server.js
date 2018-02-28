@@ -27,7 +27,7 @@ app.use(express.static(__dirname));
 // Get all todo items
 app.get('/api/todos', function (req, res) {
     // Find all documents in the collection
-    db.find({}, function (err, docs) {
+    db.find({}).sort({ today: -1 }).exec(function (err, docs) {
         if (err) {
             return err;
         }
@@ -41,6 +41,7 @@ app.post('/api/addTodo', function (req, res) {
         title: req.body.title,
         status: req.body.status,
         isDone: req.body.isDone,
+        description: req.body.description,
         today: new Date()
     };
 
@@ -57,7 +58,7 @@ app.post('/api/addTodo', function (req, res) {
 app.put('/api/updateTodo', function (req, res) {
     // Set an existing field's value
     db.update({ _id: req.body.id }, { $set: { title: req.body.title } }, { multi: false }, function (err, numReplaced) {
-        db.find({ _id: req.body.id }, function (err, docs) {
+        db.find({ _id: req.body.id }).sort({ today: -1 }).exec(function (err, docs) {
             if (err) {
                 return err;
             }
@@ -69,7 +70,7 @@ app.put('/api/updateTodo', function (req, res) {
 app.put('/api/completeTodo', function (req, res) {
     // Set an existing field's value
     db.update({ _id: req.body.id }, { $set: { status: req.body.status, isDone: req.body.isDone } }, { multi: false }, function (err, numReplaced) {
-        db.find({ _id: req.body.id }, function (err, docs) {
+        db.find({ _id: req.body.id }).sort({ today: -1 }).exec(function (err, docs) {
             if (err) {
                 return err;
             }

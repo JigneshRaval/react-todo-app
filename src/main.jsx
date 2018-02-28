@@ -31,7 +31,7 @@ const SingleTodo = (props) => {
 
             <button className="btn btn-danger float-right" onClick={() => { props.remove(props.todo._id, props.todo.today.split("T")[0].replace(/-/g, ",")) }}>Delete</button>
             <button className="btn btn-primary float-right" onClick={() => { props.edit(props.todo._id) }}>Edit</button>
-
+            <p>{props.todo.description}</p>
             <p>Date Created :<span>{props.todo.today.split("T")[0]}</span></p>
         </li>);
 }
@@ -42,7 +42,7 @@ const TodoList = (props) => {
         props.visibleTodos[props.k].length > 0 ?
             (
                 todoNode = props.visibleTodos[props.k].map((todo, indexOuter) => {
-                    return (<SingleTodo todo={todo} key={todo._id} remove={props.remove} edit={props.edit} complete={props.completeTodo} />)
+                    return (<SingleTodo todo={todo} key={todo._id} remove={props.remove} edit={props.edit} complete={props.complete} />)
                 })
             ) : (
                 todoNode = (<li className="list-group-item">Nothing here</li>)
@@ -107,12 +107,12 @@ export class TodoApp extends React.Component {
 
 
     // Add Todo item
-    addTodo(value, id) {
+    addTodo(value, description, id) {
         if (id) {
             // if Edit Mode on : Update data
             fetch('./api/updateTodo', {
                 method: 'PUT',
-                body: JSON.stringify({ id: id, title: value, status: 'pending', isDone: false }),
+                body: JSON.stringify({ id: id, title: value, status: 'pending', isDone: false, description: description }),
                 mode: 'cors',
                 redirect: 'follow',
                 headers: new Headers({
@@ -146,7 +146,7 @@ export class TodoApp extends React.Component {
             // Else Edit mode Off : Only Add new record
             fetch('./api/addTodo', {
                 method: 'POST',
-                body: JSON.stringify({ title: value, status: 'pending', isDone: false }),
+                body: JSON.stringify({ title: value, status: 'pending', isDone: false, description: description }),
                 mode: 'cors',
                 redirect: 'follow',
                 headers: new Headers({
@@ -247,11 +247,20 @@ export class TodoApp extends React.Component {
         })
             .then((response) => response.json())
             .then((data) => {
-                this.state.data.find((todo, index) => {
+                /* this.state.data.find((todo, index) => {
                     if (todo._id === todoId) {
                         this.state.data.splice(index, 1, data);
                     }
+                }); */
+
+                Object.keys(this.state.data).map((date) => {
+                    this.state.data[date].find((todo, index) => {
+                        if (todo._id === todoId) {
+                            this.state.data[date].splice(index, 1, data);
+                        }
+                    });
                 });
+
                 this.setState({ data: this.state.data });
             })
             .catch((err) => {
