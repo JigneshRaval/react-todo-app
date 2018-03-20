@@ -18903,7 +18903,7 @@ var TodoForm = function (_React$Component) {
             if (!nextProps.editTodo.title) {
                 this.setState({ title: '', description: '' });
             } else if (this.props.editTodo.title === nextProps.editTodo.title) {} else {
-                this.setState({ title: nextProps.editTodo.title, description: this.description.value });
+                this.setState({ title: nextProps.editTodo.title, description: nextProps.editTodo.description });
             }
         }
     }, {
@@ -18929,20 +18929,49 @@ var TodoForm = function (_React$Component) {
             // Return JSX
             return _react2.default.createElement(
                 'form',
-                { onSubmit: this.handleSubmit },
-                _react2.default.createElement('input', { className: 'form-control col-md-12 add-form',
-                    ref: function ref(title) {
-                        return _this2.title = title;
-                    },
-                    onChange: this.handleChange.bind(this)
-                }),
-                _react2.default.createElement('textarea', { className: 'form-control col-md-12', rows: '5', cols: '50',
-                    ref: function ref(description) {
-                        return _this2.description = description;
-                    }
+                null,
+                _react2.default.createElement(
+                    'div',
+                    { 'class': 'form-group' },
+                    _react2.default.createElement(
+                        'label',
+                        { 'for': 'inputTxtTaskTitle' },
+                        'Task Title'
+                    ),
+                    _react2.default.createElement('input', { className: 'form-control col-md-12 add-form',
+                        id: 'inputTxtTaskTitle',
+                        placeholder: 'Enter task title',
+                        ref: function ref(title) {
+                            return _this2.title = title;
+                        },
+                        onChange: this.handleChange.bind(this),
+                        value: this.state.title
+                    })
+                ),
+                _react2.default.createElement(
+                    'div',
+                    { 'class': 'form-group' },
+                    _react2.default.createElement(
+                        'label',
+                        { 'for': 'inputTxtAreaTaskDesc' },
+                        'Task Description'
+                    ),
+                    _react2.default.createElement('textarea', { className: 'form-control col-md-12', rows: '5', cols: '50',
+                        id: 'inputTxtAreaTaskDesc',
+                        placeholder: 'Enter task description',
+                        ref: function ref(description) {
+                            return _this2.description = description;
+                        },
+                        onChange: this.handleChange.bind(this),
+                        value: this.state.description
 
-                }),
-                _react2.default.createElement('br', null)
+                    })
+                ),
+                _react2.default.createElement(
+                    'button',
+                    { type: 'submit', onClick: this.handleSubmit, 'class': 'btn btn-primary' },
+                    'Submit'
+                )
             );
         }
     }, {

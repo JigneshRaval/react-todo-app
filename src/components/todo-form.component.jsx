@@ -25,7 +25,7 @@ export default class TodoForm extends React.Component {
         } else if (this.props.editTodo.title === nextProps.editTodo.title) {
 
         } else {
-            this.setState({ title: nextProps.editTodo.title, description: this.description.value });
+            this.setState({ title: nextProps.editTodo.title, description: nextProps.editTodo.description });
         }
     }
 
@@ -46,21 +46,36 @@ export default class TodoForm extends React.Component {
     renderAddTodoForm() {
         // Return JSX
         return (
-            <form onSubmit={this.handleSubmit}>
+            <form>
                 {/*<form onSubmit={(e) => {
                 e.preventDefault();
                 this.props.addTodo(this.input.value);
                 this.input.value = '';
             }}>*/}
-                <input className="form-control col-md-12 add-form"
-                    ref={(title) => this.title = title}
-                    onChange={this.handleChange.bind(this)}
-                />
-                <textarea className="form-control col-md-12" rows="5" cols="50"
-                    ref={(description) => this.description = description}
 
-                ></textarea>
-                <br />
+                <div class="form-group">
+                    <label for="inputTxtTaskTitle">Task Title</label>
+                    <input className="form-control col-md-12 add-form"
+                        id="inputTxtTaskTitle"
+                        placeholder="Enter task title"
+                        ref={(title) => this.title = title}
+                        onChange={this.handleChange.bind(this)}
+                        value={this.state.title}
+                    />
+
+                </div>
+                <div class="form-group">
+                    <label for="inputTxtAreaTaskDesc">Task Description</label>
+                    <textarea className="form-control col-md-12" rows="5" cols="50"
+                        id="inputTxtAreaTaskDesc"
+                        placeholder="Enter task description"
+                        ref={(description) => this.description = description}
+                        onChange={this.handleChange.bind(this)}
+                        value={this.state.description}
+
+                    ></textarea>
+                </div>
+                <button type="submit" onClick={this.handleSubmit} class="btn btn-primary">Submit</button>
             </form>
         );
     }
