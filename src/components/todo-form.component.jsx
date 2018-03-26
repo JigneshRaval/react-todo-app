@@ -53,8 +53,8 @@ export default class TodoForm extends React.Component {
                 this.input.value = '';
             }}>*/}
 
-                <div class="form-group">
-                    <label for="inputTxtTaskTitle">Task Title</label>
+                <div className="form-group">
+                    <label htmlFor="inputTxtTaskTitle">Task Title</label>
                     <input className="form-control col-md-12 add-form"
                         id="inputTxtTaskTitle"
                         placeholder="Enter task title"
@@ -64,8 +64,8 @@ export default class TodoForm extends React.Component {
                     />
 
                 </div>
-                <div class="form-group">
-                    <label for="inputTxtAreaTaskDesc">Task Description</label>
+                <div className="form-group">
+                    <label htmlFor="inputTxtAreaTaskDesc">Task Description</label>
                     <textarea className="form-control col-md-12" rows="5" cols="50"
                         id="inputTxtAreaTaskDesc"
                         placeholder="Enter task description"
@@ -75,7 +75,7 @@ export default class TodoForm extends React.Component {
 
                     ></textarea>
                 </div>
-                <button type="submit" onClick={this.handleSubmit} class="btn btn-primary">Submit</button>
+                <button type="submit" onClick={this.handleSubmit} className="btn btn-primary">Submit</button>
             </form>
         );
     }

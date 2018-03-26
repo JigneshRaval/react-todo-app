@@ -1,5 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+//import { BrowserRouter } from 'react-router-dom'
+import { BrowserRouter as Router, Route, Link } from "react-router-dom";
+import { Home, About, Topics } from './components/home.component'
 import { Header } from './components/Header.component';
 import { Title } from './components/todo-title.component';
 import TodoForm from './components/todo-form.component';
@@ -371,12 +374,21 @@ export class TodoApp extends React.Component {
                         }
                     </div>
                 </div>
+
             </main>
         )
     }
 }
 
 ReactDOM.render(
-    <TodoApp dataInterface={todoDataInterface} />,
+    <Router>
+        <div>
+        <TodoApp dataInterface={todoDataInterface} />
+            <Route exact path="/" component={Home} />
+            <Route path="/about" component={About} />
+            <Route path="/topics" component={Topics} />
+            </div>
+    </Router>
+    ,
     document.getElementById('app')
 );
