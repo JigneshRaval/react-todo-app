@@ -32,7 +32,7 @@ export default class TodoForm extends React.Component {
     handleSubmit(event) {
         event.preventDefault();
         this.setState({ title: this.title.value, description: this.description.value });
-        let newTodoTitle = event.target.querySelector('input');
+        let newTodoTitle = event.target.parentElement.querySelector('input');
         console.log(this.title.value, this.description.value);
         if (this.props.isEditing) {
             //this.props.addTodo(newTodoTitle.value, this.props.editTodo._id);

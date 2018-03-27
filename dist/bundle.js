@@ -2547,9 +2547,9 @@ var _TodoForm = __webpack_require__(97);
 
 var _TodoForm2 = _interopRequireDefault(_TodoForm);
 
-var _TodoDataInterface = __webpack_require__(87);
+var _Todo = __webpack_require__(99);
 
-var _TodoDataInterface2 = _interopRequireDefault(_TodoDataInterface);
+var _Todo2 = _interopRequireDefault(_Todo);
 
 var _TodoList = __webpack_require__(95);
 
@@ -2568,7 +2568,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 // Examples
 
 
-var todoDataInterface = new _TodoDataInterface2.default();
+var todoService = new _Todo2.default();
 
 // 2. Todo List
 // ==============================
@@ -2633,7 +2633,7 @@ var TodoApp = exports.TodoApp = function (_React$Component) {
             var _this2 = this;
 
             // Render all Todo items on component render
-            this.props.dataInterface.getAllTodos('./api/todos').then(function (data) {
+            this.props.todoService.getAllTodos('./api/todos').then(function (data) {
                 var newData = _this2.groupTodosByDate(data);
                 console.log("New Data :", newData, data);
                 _this2.setState({ data: newData, todoCount: data.length });
@@ -2651,18 +2651,7 @@ var TodoApp = exports.TodoApp = function (_React$Component) {
 
             if (id) {
                 // if Edit Mode on : Update data
-                fetch('./api/updateTodo', {
-                    method: 'PUT',
-                    body: JSON.stringify({ id: id, title: value, status: 'pending', isDone: false, description: description }),
-                    mode: 'cors',
-                    redirect: 'follow',
-                    headers: new Headers({
-                        'Content-Type': 'application/json'
-                        // "Content-type": "application/x-www-form-urlencoded; charset=UTF-8"
-                    })
-                }).then(function (response) {
-                    return response.json();
-                }).then(function (data) {
+                this.props.todoService.addUpdateTodo('./api/updateTodo', 'PUT', { id: id, title: value, status: 'pending', isDone: false, description: description }).then(function (data) {
                     Object.keys(_this3.state.data).map(function (date) {
                         _this3.state.data[date].find(function (todo, index) {
                             if (todo._id === id) {
@@ -2670,34 +2659,15 @@ var TodoApp = exports.TodoApp = function (_React$Component) {
                             }
                         });
                     });
-
-                    /* this.state.data.find((todo, index) => {
-                        if (todo._id === id) {
-                            this.state.data.splice(index, 1, data);
-                        }
-                    }); */
                     _this3.setState({ data: _this3.state.data });
                 }).catch(function (err) {
-                    console.log('Error in updating TODO to database.');
+                    console.log('Error in updating TODO to database.', err);
                 });
 
                 this.setState({ isEditing: false, editTodo: {} });
             } else {
                 // Else Edit mode Off : Only Add new record
-                fetch('./api/addTodo', {
-                    method: 'POST',
-                    body: JSON.stringify({ title: value, status: 'pending', isDone: false, description: description }),
-                    mode: 'cors',
-                    redirect: 'follow',
-                    headers: new Headers({
-                        'Content-Type': 'application/json'
-                        // "Content-type": "application/x-www-form-urlencoded; charset=UTF-8"
-                    })
-                }).then(function (response) {
-                    return response.json();
-                }).then(function (data) {
-                    //this.state.data.push(data);
-                    //this.setState({ data: this.state.data });
+                this.props.todoService.addUpdateTodo('./api/addTodo', 'POST', { title: value, status: 'pending', isDone: false, description: description }).then(function (data) {
                     var date = data.today.split("T")[0].replace(/-/g, ",");
                     if (!_this3.state.data[date]) {
                         _this3.state.data[date] = [];
@@ -2718,10 +2688,6 @@ var TodoApp = exports.TodoApp = function (_React$Component) {
         value: function editTodo(todoId) {
             var _this4 = this;
 
-            /* const remainder = this.state.data.filter((todo) => {
-                if (todo._id === todoId) return todo;
-            }); */
-
             var remainder = Object.keys(this.state.data).map(function (date) {
                 return _this4.state.data[date].filter(function (todo, index) {
                     if (todo._id === todoId) {
@@ -2729,7 +2695,6 @@ var TodoApp = exports.TodoApp = function (_React$Component) {
                     }
                 });
             });
-            console.log('remainder :', remainder[0][0]);
             this.setState({ isEditing: true, editTodo: remainder[0][0] });
         }
 
@@ -2741,9 +2706,6 @@ var TodoApp = exports.TodoApp = function (_React$Component) {
             var _this5 = this;
 
             // Filter all todos except the one to be removed
-            /* const remainder = this.state.data[date].filter((todo) => {
-                if (todo._id !== id) return todo;
-            }); */
 
             var filteredData = {};
             Object.keys(this.state.data).map(function (date) {
@@ -2758,17 +2720,7 @@ var TodoApp = exports.TodoApp = function (_React$Component) {
                 });
             });
 
-            // Update state with filter
-            fetch('./api/removeTodo', {
-                method: 'DELETE',
-                body: JSON.stringify({ id: id }),
-                mode: 'cors',
-                redirect: 'follow',
-                headers: new Headers({
-                    'Content-Type': 'application/json'
-                    // "Content-type": "application/x-www-form-urlencoded; charset=UTF-8"
-                })
-            }).then(function (response) {
+            this.props.todoService.removeTodo('./api/removeTodo', { id: id }).then(function (data) {
                 _this5.setState({ data: filteredData });
             }).catch(function (err) {
                 console.log('Removed Todo item successfully from database.', err);
@@ -2977,7 +2929,7 @@ _reactDom2.default.render(_react2.default.createElement(
         _react2.default.Fragment,
         null,
         _react2.default.createElement(_reactRouterDom.Route, { exact: true, path: '/', render: function render() {
-                return _react2.default.createElement(TodoApp, { dataInterface: todoDataInterface });
+                return _react2.default.createElement(TodoApp, { todoService: todoService });
             } }),
         _react2.default.createElement(_reactRouterDom.Route, { path: '/about', component: _Home.About }),
         _react2.default.createElement(_reactRouterDom.Route, { path: '/topics', component: _Home.Topics })
@@ -24740,53 +24692,7 @@ var HeaderNavigation = function HeaderNavigation() {
 /***/ }),
 /* 85 */,
 /* 86 */,
-/* 87 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var TodoDataInterface = function () {
-    function TodoDataInterface() {
-        _classCallCheck(this, TodoDataInterface);
-
-        this.todos = [];
-    }
-
-    _createClass(TodoDataInterface, [{
-        key: 'getAllTodos',
-        value: function getAllTodos(url) {
-            var _this = this;
-
-            // Render all Todo items on component render
-            return fetch(url).then(function (response) {
-                // If error then exit
-                if (response.status !== 200) {
-                    console.log('Looks like there was a problem. Status Code: ' + response.status);
-                    return;
-                }
-
-                // Examine the text in the response
-                _this.todos = response.json();
-                return _this.todos;
-            });
-        }
-    }]);
-
-    return TodoDataInterface;
-}();
-
-exports.default = TodoDataInterface;
-
-/***/ }),
+/* 87 */,
 /* 88 */,
 /* 89 */
 /***/ (function(module, exports, __webpack_require__) {
@@ -25816,7 +25722,7 @@ var TodoForm = function (_React$Component) {
         value: function handleSubmit(event) {
             event.preventDefault();
             this.setState({ title: this.title.value, description: this.description.value });
-            var newTodoTitle = event.target.querySelector('input');
+            var newTodoTitle = event.target.parentElement.querySelector('input');
             console.log(this.title.value, this.description.value);
             if (this.props.isEditing) {
                 //this.props.addTodo(newTodoTitle.value, this.props.editTodo._id);
@@ -26016,6 +25922,109 @@ var Topic = exports.Topic = function Topic(_ref2) {
 };
 
 //export { Home, About, Topics, Topic }
+
+/***/ }),
+/* 99 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var TodoService = function () {
+    function TodoService() {
+        _classCallCheck(this, TodoService);
+
+        this.todos = [];
+    }
+
+    _createClass(TodoService, [{
+        key: 'getAllTodos',
+        value: function getAllTodos(url) {
+            var _this = this;
+
+            // Render all Todo items on component render
+            return fetch(url).then(function (response) {
+                // If error then exit
+                if (response.status !== 200) {
+                    console.log('Looks like there was a problem. Status Code: ' + response.status);
+                    return;
+                }
+
+                // Examine the text in the response
+                _this.todos = response.json();
+                return _this.todos;
+            });
+        }
+    }, {
+        key: 'addUpdateTodo',
+        value: function addUpdateTodo(url, method, dataObject) {
+            var _this2 = this;
+
+            return fetch(url, {
+                method: method,
+                body: JSON.stringify(dataObject),
+                mode: 'cors',
+                redirect: 'follow',
+                headers: new Headers({
+                    'Content-Type': 'application/json'
+                    // "Content-type": "application/x-www-form-urlencoded; charset=UTF-8"
+                })
+            }).then(function (response) {
+                // If error then exit
+                if (response.status !== 200) {
+                    console.log('Looks like there was a problem. Status Code: ' + response.status);
+                    return;
+                }
+
+                // Examine the text in the response
+                _this2.todos = response.json();
+                return _this2.todos;
+                // response.json()
+            });
+        }
+    }, {
+        key: 'removeTodo',
+        value: function removeTodo(url, dataObject) {
+            var _this3 = this;
+
+            // Update state with filter
+            return fetch(url, {
+                method: 'DELETE',
+                body: JSON.stringify(dataObject),
+                mode: 'cors',
+                redirect: 'follow',
+                headers: new Headers({
+                    'Content-Type': 'application/json'
+                    // "Content-type": "application/x-www-form-urlencoded; charset=UTF-8"
+                })
+            }).then(function (response) {
+                // If error then exit
+                if (response.status !== 200) {
+                    console.log('Looks like there was a problem. Status Code: ' + response.status);
+                    return;
+                }
+
+                // Examine the text in the response
+                _this3.todos = response.json();
+                return _this3.todos;
+            }).catch(function (err) {
+                console.log('Removed Todo item successfully from database.', err);
+            });
+        }
+    }]);
+
+    return TodoService;
+}();
+
+exports.default = TodoService;
 
 /***/ })
 /******/ ]);

@@ -6,13 +6,13 @@ import { Home, About, Topics } from './routes/Home.component'
 import { Header } from './components/Header.component';
 import { Title } from './components/Todo-Title.component';
 import TodoForm from './components/Todo-Form.component';
-import TodoDataInterface from './components/TodoDataInterface';
+import TodoService from './components/Todo.service';
 import { TodoList } from './components/Todo-List.component';
 
 // Examples
 import { MessageList } from './examples/context/Context.component';
 
-const todoDataInterface = new TodoDataInterface();
+const todoService = new TodoService();
 
 // 2. Todo List
 // ==============================
@@ -55,7 +55,7 @@ export class TodoApp extends React.Component {
 
     componentDidMount() {
         // Render all Todo items on component render
-        this.props.dataInterface.getAllTodos('./api/todos')
+        this.props.todoService.getAllTodos('./api/todos')
             .then((data) => {
                 let newData = this.groupTodosByDate(data);
                 console.log("New Data :", newData, data);
@@ -72,17 +72,7 @@ export class TodoApp extends React.Component {
     addTodo(value, description, id) {
         if (id) {
             // if Edit Mode on : Update data
-            fetch('./api/updateTodo', {
-                method: 'PUT',
-                body: JSON.stringify({ id: id, title: value, status: 'pending', isDone: false, description: description }),
-                mode: 'cors',
-                redirect: 'follow',
-                headers: new Headers({
-                    'Content-Type': 'application/json'
-                    // "Content-type": "application/x-www-form-urlencoded; charset=UTF-8"
-                })
-            })
-                .then((response) => response.json())
+            this.props.todoService.addUpdateTodo('./api/updateTodo', 'PUT', { id: id, title: value, status: 'pending', isDone: false, description: description })
                 .then((data) => {
                     Object.keys(this.state.data).map((date) => {
                         this.state.data[date].find((todo, index) => {
@@ -91,35 +81,17 @@ export class TodoApp extends React.Component {
                             }
                         });
                     });
-
-                    /* this.state.data.find((todo, index) => {
-                        if (todo._id === id) {
-                            this.state.data.splice(index, 1, data);
-                        }
-                    }); */
                     this.setState({ data: this.state.data });
                 })
                 .catch((err) => {
-                    console.log('Error in updating TODO to database.');
+                    console.log('Error in updating TODO to database.', err);
                 });
 
             this.setState({ isEditing: false, editTodo: {} });
         } else {
             // Else Edit mode Off : Only Add new record
-            fetch('./api/addTodo', {
-                method: 'POST',
-                body: JSON.stringify({ title: value, status: 'pending', isDone: false, description: description }),
-                mode: 'cors',
-                redirect: 'follow',
-                headers: new Headers({
-                    'Content-Type': 'application/json'
-                    // "Content-type": "application/x-www-form-urlencoded; charset=UTF-8"
-                })
-            })
-                .then((response) => response.json())
+            this.props.todoService.addUpdateTodo('./api/addTodo', 'POST', { title: value, status: 'pending', isDone: false, description: description })
                 .then((data) => {
-                    //this.state.data.push(data);
-                    //this.setState({ data: this.state.data });
                     let date = data.today.split("T")[0].replace(/-/g, ",");
                     if (!this.state.data[date]) {
                         this.state.data[date] = [];
@@ -136,10 +108,6 @@ export class TodoApp extends React.Component {
 
     // Edit Todo item
     editTodo(todoId) {
-        /* const remainder = this.state.data.filter((todo) => {
-            if (todo._id === todoId) return todo;
-        }); */
-
         let remainder = Object.keys(this.state.data).map((date) => {
             return this.state.data[date].filter((todo, index) => {
                 if (todo._id === todoId) {
@@ -147,16 +115,12 @@ export class TodoApp extends React.Component {
                 }
             });
         });
-        console.log('remainder :', remainder[0][0])
         this.setState({ isEditing: true, editTodo: remainder[0][0] });
     }
 
     // Remove Todo item
     removeTodo(id, date) {
         // Filter all todos except the one to be removed
-        /* const remainder = this.state.data[date].filter((todo) => {
-            if (todo._id !== id) return todo;
-        }); */
 
         let filteredData = {};
         Object.keys(this.state.data).map((date) => {
@@ -171,23 +135,13 @@ export class TodoApp extends React.Component {
             });
         });
 
-        // Update state with filter
-        fetch('./api/removeTodo', {
-            method: 'DELETE',
-            body: JSON.stringify({ id: id }),
-            mode: 'cors',
-            redirect: 'follow',
-            headers: new Headers({
-                'Content-Type': 'application/json'
-                // "Content-type": "application/x-www-form-urlencoded; charset=UTF-8"
-            })
+        this.props.todoService.removeTodo('./api/removeTodo', { id: id })
+        .then((data) => {
+            this.setState({ data: filteredData })
         })
-            .then((response) => {
-                this.setState({ data: filteredData })
-            })
-            .catch((err) => {
-                console.log('Removed Todo item successfully from database.', err);
-            });
+        .catch((err) => {
+            console.log('Removed Todo item successfully from database.', err);
+        });
     }
 
     completeTodo(todoId, isDone) {
@@ -250,7 +204,7 @@ export class TodoApp extends React.Component {
                 return filteredData;
             case 'COMPLETED_TODOS':
 
-            filteredData = this.filterTodos(true);
+                filteredData = this.filterTodos(true);
                 /* Object.keys(this.state.data).map(date => {
                     this.state.data[date].filter(todo => {
                         if (todo.isDone === true) {
@@ -364,7 +318,7 @@ The simplest solution is just to use render instead:
 ReactDOM.render(
     <Router>
         <React.Fragment>
-            <Route exact path="/" render={() => <TodoApp dataInterface={todoDataInterface} />} />
+            <Route exact path="/" render={() => <TodoApp todoService={todoService} />} />
             <Route path="/about" component={About} />
             <Route path="/topics" component={Topics} />
         </React.Fragment>
