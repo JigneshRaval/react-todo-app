@@ -88,6 +88,14 @@ app.delete('/api/removeTodo', function (req, res) {
     });
 });
 
+app.get('/*', function (req, res) {
+    res.sendFile(path.join(__dirname, 'index.html'), function (err) {
+        if (err) {
+            res.status(500).send(err)
+        }
+    });
+});
+
 // Handle 404 Error
 app.use(function (req, res) {
     res.status(400).send({ error: '404: File Not Found', message: "Plese Go Back to Home page." });

@@ -2,62 +2,21 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 //import { BrowserRouter } from 'react-router-dom'
 import { BrowserRouter as Router, Route, Link } from "react-router-dom";
-import { Home, About, Topics } from './components/home.component'
+import { Home, About, Topics } from './routes/Home.component'
 import { Header } from './components/Header.component';
-import { Title } from './components/todo-title.component';
-import TodoForm from './components/todo-form.component';
+import { Title } from './components/Todo-Title.component';
+import TodoForm from './components/Todo-Form.component';
 import TodoDataInterface from './components/TodoDataInterface';
+import { TodoList } from './components/Todo-List.component';
+
+// Examples
+import { MessageList } from './examples/context/Context.component';
 
 const todoDataInterface = new TodoDataInterface();
 
-// 3. Single Todo item
-// ==============================
-const SingleTodo = (props) => {
-    // props = { todo, remove, edit, complete }
-
-    let toggleTodoStatus = (event) => {
-        console.log('Hi', event.target);
-        if (event.target.checked) {
-            props.complete(props.todo._id, event.target.checked);
-        } else {
-            props.complete(props.todo._id, event.target.checked);
-        }
-
-    }
-
-    // Each Todo
-    return (
-        <li className={"list-group-item " + (props.todo.isDone ? "done" : "")}>
-            <label htmlFor={'todoStatus_' + props.todo._id}>
-                <input name="todoStatus[]" id={'todoStatus_' + props.todo._id} type="checkbox" value={props.todo._id} onChange={toggleTodoStatus.bind(this)} checked={props.todo.isDone} /> {props.todo.title} <span className={"badge " + (props.todo.isDone ? 'badge-success' : 'badge-primary')}>{props.todo.status}</span>
-            </label>
-
-            <button className="btn btn-danger float-right" onClick={() => { props.remove(props.todo._id, props.todo.today.split("T")[0].replace(/-/g, ",")) }}>Delete</button>
-            <button className="btn btn-primary float-right" onClick={() => { props.edit(props.todo._id) }}>Edit</button>
-            <p>{props.todo.description}</p>
-            <p>Date Created :<span>{props.todo.today.split("T")[0]}</span></p>
-        </li>);
-}
-
-const TodoList = (props) => {
-    let todoNode;
-    {
-        props.visibleTodos[props.k].length > 0 ?
-            (
-                todoNode = props.visibleTodos[props.k].map((todo, indexOuter) => {
-                    return (<SingleTodo todo={todo} key={todo._id} remove={props.remove} edit={props.edit} complete={props.complete} />)
-                })
-            ) : (
-                todoNode = (<li className="list-group-item">Nothing here</li>)
-            )
-    }
-
-    return todoNode;
-}
-
 // 2. Todo List
 // ==============================
-const TodoGroupList = (props) => {
+const TodoListGroup = (props) => {
     // props = { todos, remove, edit, completeTodo }
     // Map through the todos
     let groupList;
@@ -65,7 +24,6 @@ const TodoGroupList = (props) => {
     // If VisibleTodos length is greater then zero
     {
         groupList = Object.keys(props.visibleTodos).map(function (k) {
-
             return (
                 <div key={k}>
                     <p><strong>{k}</strong></p>
@@ -90,7 +48,8 @@ export class TodoApp extends React.Component {
             data: {},
             isEditing: false,
             editTodo: {},
-            visibilityFilter: "ALL_TODOS"
+            visibilityFilter: "ALL_TODOS",
+            todoCount: 0
         }
     }
 
@@ -100,7 +59,7 @@ export class TodoApp extends React.Component {
             .then((data) => {
                 let newData = this.groupTodosByDate(data);
                 console.log("New Data :", newData, data);
-                this.setState({ data: newData });
+                this.setState({ data: newData, todoCount: data.length });
             })
             .catch((err) => {
                 console.log('Error in fetching all reacords', err);
@@ -185,11 +144,6 @@ export class TodoApp extends React.Component {
             return this.state.data[date].filter((todo, index) => {
                 if (todo._id === todoId) {
                     return todo
-                    /* if (filteredData.hasOwnProperty(date)) {
-                        filteredData[date].push(todo);
-                    } else {
-                        filteredData[date] = [todo];
-                    } */
                 }
             });
         });
@@ -280,8 +234,8 @@ export class TodoApp extends React.Component {
                 return this.state.data;
             case 'ACTIVE_TODOS':
                 // return this.state.data.filter(todo => todo.isDone === false);
-
-                Object.keys(this.state.data).map((date) => {
+                filteredData = this.filterTodos(false);
+                /* Object.keys(this.state.data).map((date) => {
                     this.state.data[date].filter((todo, index) => {
                         if (todo.isDone === false) {
                             if (filteredData.hasOwnProperty(date)) {
@@ -291,12 +245,13 @@ export class TodoApp extends React.Component {
                             }
                         }
                     });
-                });
+                });*/
 
                 return filteredData;
             case 'COMPLETED_TODOS':
 
-                Object.keys(this.state.data).map(date => {
+            filteredData = this.filterTodos(true);
+                /* Object.keys(this.state.data).map(date => {
                     this.state.data[date].filter(todo => {
                         if (todo.isDone === true) {
                             if (filteredData.hasOwnProperty(date)) {
@@ -306,13 +261,31 @@ export class TodoApp extends React.Component {
                             }
                         }
                     })
-                });
+                }); */
 
                 return filteredData;
             //return this.state.data.filter(todo => todo.isDone === true);
             default:
                 return this.state.data;
         }
+    }
+
+    filterTodos(isDone) {
+        let filteredData = {};
+
+        Object.keys(this.state.data).map(date => {
+            this.state.data[date].filter(todo => {
+                if (todo.isDone === isDone) {
+                    if (filteredData.hasOwnProperty(date)) {
+                        filteredData[date].push(todo);
+                    } else {
+                        filteredData[date] = [todo];
+                    }
+                }
+            })
+        });
+
+        return filteredData;
     }
 
     orderByDate(arr, dateProp) {
@@ -322,7 +295,6 @@ export class TodoApp extends React.Component {
             return a[dateProp] < b[dateProp] ? -1 : 1;
         });
     }
-
 
     groupTodosByDate(data) {
         var grouppedData = data.reduce((acc, el) => {
@@ -350,11 +322,13 @@ export class TodoApp extends React.Component {
         return (
             <main>
                 <Header />
+
                 <div className="container">
-                    <Title todoCount={this.state.data.length} />
+                    <Title todoCount={this.state.todoCount} />
                     <TodoForm isEditing={this.state.isEditing} editTodo={this.state.editTodo} addTodo={this.addTodo.bind(this)} />
                     <h3 className="text-center">{this.state.visibilityFilter.replace('_', ' ')}</h3>
-                    <TodoGroupList
+                    <MessageList messages={['Hi', 'Good', 'Design']} />
+                    <TodoListGroup
                         todos={this.state.data}
                         visibleTodos={visibleTodosArray}
                         completeTodo={this.completeTodo.bind(this)}
@@ -379,15 +353,21 @@ export class TodoApp extends React.Component {
         )
     }
 }
+/*
+Allow passing props to <Route> to be passed down to the component it renders
+https://github.com/ReactTraining/react-router/issues/5521
+https://tylermcginnis.com/react-router-pass-props-to-components/
+The simplest solution is just to use render instead:
 
+<Route path="/abc" render={()=><TestWidget num="2" someProp={100}/>}/>
+*/
 ReactDOM.render(
     <Router>
-        <div>
-        <TodoApp dataInterface={todoDataInterface} />
-            <Route exact path="/" component={Home} />
+        <React.Fragment>
+            <Route exact path="/" render={() => <TodoApp dataInterface={todoDataInterface} />} />
             <Route path="/about" component={About} />
             <Route path="/topics" component={Topics} />
-            </div>
+        </React.Fragment>
     </Router>
     ,
     document.getElementById('app')

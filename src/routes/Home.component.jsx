@@ -1,9 +1,11 @@
 import React from 'react';
 import { Link, Route } from 'react-router-dom';
+import { Header } from '../components/Header.component';
 
 export const Home = () => {
     return (
         <div>
+            <Header />
             <h2>Home</h2>
         </div>
     )
@@ -12,6 +14,7 @@ export const Home = () => {
 export const About = () => {
     return (
         <div>
+            <Header />
             <h2>About</h2>
         </div>
     )
@@ -20,6 +23,7 @@ export const About = () => {
 export const Topics = ({ match }) => {
     return (
         <div>
+            <Header />
             <h2>Topics</h2>
             <ul>
                 <li>

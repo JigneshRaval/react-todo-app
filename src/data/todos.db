@@ -2,7 +2,7 @@
 {"title":"test","status":"pending","isDone":false,"today":{"$$date":1519667981253},"_id":"88jFYcbvp8mjQ7Ew"}
 {"title":"New Three 123","status":"pending","isDone":false,"today":{"$$date":1519144817759},"_id":"Eyt44n1svxIjOn5Y"}
 {"title":"News Room 123456","status":"pending","isDone":false,"today":{"$$date":1519744581110},"_id":"IC8mPPTYXhyGi4EK"}
-{"title":"sdferw 324242 sdsfsdfdf","status":"pending","isDone":false,"description":"353535 sdfdsfdfsff 12344","today":{"$$date":1519842762839},"_id":"Ifc2x015Z72W5wc4"}
+{"title":"sdferw 324242 sdsfsdfdf","status":"completed","isDone":true,"description":"353535 sdfdsfdfsff 12344","today":{"$$date":1519842762839},"_id":"Ifc2x015Z72W5wc4"}
 {"title":"bfbddfbdb","status":"pending","isDone":false,"description":"","today":{"$$date":1519842651399},"_id":"JqQLRonceq28pWLE"}
 {"title":"My First card","status":"pending","isDone":false,"today":{"$$date":1519218013979},"_id":"UlSoOrLBjX2RldgQ"}
 {"title":"Sun Pharma","status":"completed","isDone":true,"today":{"$$date":1519144879040},"_id":"VbBEyndCIhPDB1Uf"}
