@@ -15,6 +15,10 @@ const SingleTodo = (props) => {
 
     }
 
+    function createMarkup(htmlContent) {
+        return { __html: htmlContent };
+    }
+
     // Each Todo
     return (
         <li className={"list-group-item " + (props.todo.isDone ? "done" : "")}>
@@ -24,7 +28,7 @@ const SingleTodo = (props) => {
 
             <button className="btn btn-danger float-right" onClick={() => { props.remove(props.todo._id, props.todo.today.split("T")[0].replace(/-/g, ",")) }}>Delete</button>
             <button className="btn btn-primary float-right" onClick={() => { props.edit(props.todo._id) }}>Edit</button>
-            <p>{props.todo.description}</p>
+            <div dangerouslySetInnerHTML={createMarkup(props.todo.description)}></div>
             <p>Date Created :<span>{props.todo.today.split("T")[0]}</span></p>
         </li>);
 }
