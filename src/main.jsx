@@ -25,10 +25,10 @@ const TodoListGroup = (props) => {
     {
         groupList = Object.keys(props.visibleTodos).map(function (k) {
             return (
-                <div key={k}>
+                <React.Fragment key={k}>
                     <p><strong>{k}</strong></p>
                     <TodoList visibleTodos={props.visibleTodos} k={k} remove={props.remove} edit={props.edit} complete={props.completeTodo} />
-                </div>
+                </React.Fragment>
             );
         })
     }
@@ -57,8 +57,9 @@ export class TodoApp extends React.Component {
         // Render all Todo items on component render
         this.props.todoService.getAllTodos('./api/todos')
             .then((data) => {
+                console.log(data);
                 let newData = this.groupTodosByDate(data);
-                console.log("New Data :", newData, data);
+                // console.log("New Data :", newData, data);
                 this.setState({ data: newData, todoCount: data.length });
             })
             .catch((err) => {
@@ -66,13 +67,11 @@ export class TodoApp extends React.Component {
             });
     }
 
-
-
     // Add Todo item
     addTodo(value, description, id) {
         if (id) {
             // if Edit Mode on : Update data
-            this.props.todoService.addUpdateTodo('./api/updateTodo', 'PUT', { id: id, title: value, status: 'pending', isDone: false, description: description })
+            this.props.todoService.addUpdateTodo('./api/updateTodo', 'PUT', { id: id, title: value, status: 'pending', isDone: false, description: description, dateCreated : Date.now() })
                 .then((data) => {
                     Object.keys(this.state.data).map((date) => {
                         this.state.data[date].find((todo, index) => {
@@ -89,8 +88,9 @@ export class TodoApp extends React.Component {
 
             this.setState({ isEditing: false, editTodo: {} });
         } else {
+            let formData = { title: value, status: 'pending', isDone: false, description: description , dateCreated : Date.now()};
             // Else Edit mode Off : Only Add new record
-            this.props.todoService.addUpdateTodo('./api/addTodo', 'POST', { title: value, status: 'pending', isDone: false, description: description })
+            this.props.todoService.addUpdateTodo('./api/addTodo', 'POST', formData)
                 .then((data) => {
                     let date = data.today.split("T")[0].replace(/-/g, ",");
                     if (!this.state.data[date]) {
@@ -115,7 +115,12 @@ export class TodoApp extends React.Component {
                 }
             });
         });
-        this.setState({ isEditing: true, editTodo: remainder[0][0] });
+        remainder.filter((value) => {
+            if (value.length > 0) {
+                this.setState({ isEditing: true, editTodo: value[0] });
+            }
+        });
+
     }
 
     // Remove Todo item
@@ -136,12 +141,12 @@ export class TodoApp extends React.Component {
         });
 
         this.props.todoService.removeTodo('./api/removeTodo', { id: id })
-        .then((data) => {
-            this.setState({ data: filteredData })
-        })
-        .catch((err) => {
-            console.log('Removed Todo item successfully from database.', err);
-        });
+            .then((data) => {
+                this.setState({ data: filteredData })
+            })
+            .catch((err) => {
+                console.log('Removed Todo item successfully from database.', err);
+            });
     }
 
     completeTodo(todoId, isDone) {
@@ -272,7 +277,7 @@ export class TodoApp extends React.Component {
     render() {
 
         let visibleTodosArray = this.visibleTodos();
-        console.log('visibleTodos :', this.state.data);
+        // console.log('visibleTodos :', this.state.data);
         return (
             <main>
                 <Header />
@@ -281,14 +286,17 @@ export class TodoApp extends React.Component {
                     <Title todoCount={this.state.todoCount} />
                     <TodoForm isEditing={this.state.isEditing} editTodo={this.state.editTodo} addTodo={this.addTodo.bind(this)} />
                     <h3 className="text-center">{this.state.visibilityFilter.replace('_', ' ')}</h3>
-                    <MessageList messages={['Hi', 'Good', 'Design']} />
-                    <TodoListGroup
-                        todos={this.state.data}
-                        visibleTodos={visibleTodosArray}
-                        completeTodo={this.completeTodo.bind(this)}
-                        remove={this.removeTodo.bind(this)}
-                        edit={this.editTodo.bind(this)}
-                    />
+                    {/* <MessageList messages={['Hi', 'Good', 'Design']} /> */}
+                    {
+                        this.state.data &&
+                        <TodoListGroup
+                            todos={this.state.data}
+                            visibleTodos={visibleTodosArray}
+                            completeTodo={this.completeTodo.bind(this)}
+                            remove={this.removeTodo.bind(this)}
+                            edit={this.editTodo.bind(this)}
+                        />
+                    }
                     <div className="text-center p-3">
                         {
                             this.visibilityFilters.map((visibilityFilter) => {

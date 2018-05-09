@@ -42,6 +42,7 @@ app.post('/api/addTodo', function (req, res) {
         status: req.body.status,
         isDone: req.body.isDone,
         description: req.body.description,
+        dateCreated: req.body.dateCreated,
         today: new Date()
     };
 

@@ -2643,7 +2643,7 @@ var TodoListGroup = function TodoListGroup(props) {
     {
         groupList = Object.keys(props.visibleTodos).map(function (k) {
             return _react2.default.createElement(
-                'div',
+                _react2.default.Fragment,
                 { key: k },
                 _react2.default.createElement(
                     'p',
@@ -2696,8 +2696,9 @@ var TodoApp = exports.TodoApp = function (_React$Component) {
 
             // Render all Todo items on component render
             this.props.todoService.getAllTodos('./api/todos').then(function (data) {
+                console.log(data);
                 var newData = _this2.groupTodosByDate(data);
-                console.log("New Data :", newData, data);
+                // console.log("New Data :", newData, data);
                 _this2.setState({ data: newData, todoCount: data.length });
             }).catch(function (err) {
                 console.log('Error in fetching all reacords', err);
@@ -2713,7 +2714,7 @@ var TodoApp = exports.TodoApp = function (_React$Component) {
 
             if (id) {
                 // if Edit Mode on : Update data
-                this.props.todoService.addUpdateTodo('./api/updateTodo', 'PUT', { id: id, title: value, status: 'pending', isDone: false, description: description }).then(function (data) {
+                this.props.todoService.addUpdateTodo('./api/updateTodo', 'PUT', { id: id, title: value, status: 'pending', isDone: false, description: description, dateCreated: Date.now() }).then(function (data) {
                     Object.keys(_this3.state.data).map(function (date) {
                         _this3.state.data[date].find(function (todo, index) {
                             if (todo._id === id) {
@@ -2728,8 +2729,9 @@ var TodoApp = exports.TodoApp = function (_React$Component) {
 
                 this.setState({ isEditing: false, editTodo: {} });
             } else {
+                var formData = { title: value, status: 'pending', isDone: false, description: description, dateCreated: Date.now() };
                 // Else Edit mode Off : Only Add new record
-                this.props.todoService.addUpdateTodo('./api/addTodo', 'POST', { title: value, status: 'pending', isDone: false, description: description }).then(function (data) {
+                this.props.todoService.addUpdateTodo('./api/addTodo', 'POST', formData).then(function (data) {
                     var date = data.today.split("T")[0].replace(/-/g, ",");
                     if (!_this3.state.data[date]) {
                         _this3.state.data[date] = [];
@@ -2757,7 +2759,11 @@ var TodoApp = exports.TodoApp = function (_React$Component) {
                     }
                 });
             });
-            this.setState({ isEditing: true, editTodo: remainder[0][0] });
+            remainder.filter(function (value) {
+                if (value.length > 0) {
+                    _this4.setState({ isEditing: true, editTodo: value[0] });
+                }
+            });
         }
 
         // Remove Todo item
@@ -2928,7 +2934,7 @@ var TodoApp = exports.TodoApp = function (_React$Component) {
             var _this8 = this;
 
             var visibleTodosArray = this.visibleTodos();
-            console.log('visibleTodos :', this.state.data);
+            // console.log('visibleTodos :', this.state.data);
             return _react2.default.createElement(
                 'main',
                 null,
@@ -2943,8 +2949,7 @@ var TodoApp = exports.TodoApp = function (_React$Component) {
                         { className: 'text-center' },
                         this.state.visibilityFilter.replace('_', ' ')
                     ),
-                    _react2.default.createElement(_Context.MessageList, { messages: ['Hi', 'Good', 'Design'] }),
-                    _react2.default.createElement(TodoListGroup, {
+                    this.state.data && _react2.default.createElement(TodoListGroup, {
                         todos: this.state.data,
                         visibleTodos: visibleTodosArray,
                         completeTodo: this.completeTodo.bind(this),
@@ -24881,9 +24886,10 @@ var TodoForm = function (_React$Component) {
 
         var _this = _possibleConstructorReturn(this, (TodoForm.__proto__ || Object.getPrototypeOf(TodoForm)).call(this, props));
 
-        _this.state = { title: '', description: '' };
+        _this.state = { title: '', description: '', isWeekend: false };
         _this.input;
         _this.handleSubmit = _this.handleSubmit.bind(_this);
+        _this.setWeekends = _this.setWeekends.bind(_this);
         return _this;
     }
 
@@ -24892,26 +24898,44 @@ var TodoForm = function (_React$Component) {
         value: function componentDidMount() {
             $('#inputTxtAreaTaskDesc').summernote({
                 placeholder: 'Hello stand alone ui',
-                tabsize: 2,
-                height: 100,
-                toolbar: [
-                // [groupName, [list of button]]
-                ['style', ['bold', 'italic', 'underline', 'clear']], ['font', ['strikethrough', 'superscript', 'subscript']], ['fontsize', ['fontsize']], ['color', ['color']], ['para', ['ul', 'ol', 'paragraph']], ['height', ['height']]]
+                tabsize: 4,
+                height: 200
+                /* toolbar: [
+                    // [groupName, [list of button]]
+                    ['style', ['bold', 'italic', 'underline', 'clear']],
+                    ['font', ['strikethrough', 'superscript', 'subscript']],
+                    ['fontsize', ['fontsize']],
+                    ['color', ['color']],
+                    ['para', ['ul', 'ol', 'paragraph']],
+                    ['height', ['height']]
+                ] */
             });
+        }
+    }, {
+        key: 'setWeekends',
+        value: function setWeekends() {
+            this.props.addTodo("Weekends", "Saturday", '');
+            this.props.addTodo("Weekends", "Sunday", '');
         }
     }, {
         key: 'handleChange',
         value: function handleChange(event) {
             this.setState({
                 title: this.title.value,
-                description: $(this.description).summernote('code')
+                description: $(this.description).summernote('code'),
+                isWeekend: !this.state.isWeekend
             });
             console.log(this.state);
         }
     }, {
         key: 'componentWillReceiveProps',
         value: function componentWillReceiveProps(nextProps) {
+            if (Object.keys(nextProps.editTodo).length === 0 && nextProps.editTodo.constructor === Object) {
+                return false;
+            }
+
             console.log("componentWillReceiveProps :", nextProps);
+
             if (!nextProps.editTodo.title) {
                 $(this.description).summernote('reset');
                 this.setState({ title: '', description: '' });
@@ -24931,7 +24955,9 @@ var TodoForm = function (_React$Component) {
                 //this.props.addTodo(newTodoTitle.value, this.props.editTodo._id);
                 this.props.addTodo(this.title.value, this.senitizeInnerHtml(this.description.value), this.props.editTodo._id);
             } else {
-                this.props.addTodo(this.state.title, this.senitizeInnerHtml(this.description.value), '');
+                if (this.state.isWeekend) {} else {
+                    this.props.addTodo(this.state.title, this.senitizeInnerHtml(this.description.value), '');
+                }
             }
             newTodoTitle.value = '';
             $(this.description).summernote('reset');
@@ -24943,6 +24969,14 @@ var TodoForm = function (_React$Component) {
 
             return senitizedContent;
         }
+
+        /* shouldComponentUpdate(nextProps, nextState) {
+            if (this.state.title === nextState.title) {
+                return false;
+            }
+            console.log('shouldComponentUpdate :', nextProps, this.state, nextState);
+        } */
+
     }, {
         key: 'renderAddTodoForm',
         value: function renderAddTodoForm() {
@@ -24950,49 +24984,62 @@ var TodoForm = function (_React$Component) {
 
             // Return JSX
             return _react2.default.createElement(
-                'form',
-                { method: 'post' },
+                'div',
+                null,
                 _react2.default.createElement(
-                    'div',
-                    { className: 'form-group' },
+                    'form',
+                    { method: 'post' },
                     _react2.default.createElement(
-                        'label',
-                        { htmlFor: 'inputTxtTaskTitle' },
-                        'Task Title'
+                        'div',
+                        { className: 'form-group' },
+                        _react2.default.createElement(
+                            'label',
+                            { htmlFor: 'inputTxtTaskTitle' },
+                            'Task Title'
+                        ),
+                        _react2.default.createElement('input', { className: 'form-control col-md-12 add-form',
+                            id: 'inputTxtTaskTitle',
+                            placeholder: 'Enter task title',
+                            ref: function ref(title) {
+                                return _this2.title = title;
+                            },
+                            onChange: this.handleChange.bind(this),
+                            value: this.state.title
+                        })
                     ),
-                    _react2.default.createElement('input', { className: 'form-control col-md-12 add-form',
-                        id: 'inputTxtTaskTitle',
-                        placeholder: 'Enter task title',
-                        ref: function ref(title) {
-                            return _this2.title = title;
-                        },
-                        onChange: this.handleChange.bind(this),
-                        value: this.state.title
-                    })
-                ),
-                _react2.default.createElement(
-                    'div',
-                    { className: 'form-group' },
                     _react2.default.createElement(
-                        'label',
-                        { htmlFor: 'inputTxtAreaTaskDesc' },
-                        'Task Description'
-                    ),
-                    _react2.default.createElement('textarea', { className: 'form-control col-md-12', name: 'editordata', rows: '5', cols: '50',
-                        id: 'inputTxtAreaTaskDesc',
-                        placeholder: 'Enter task description',
-                        ref: function ref(description) {
-                            return _this2.description = description;
-                        },
-                        onChange: this.handleChange.bind(this),
-                        value: this.state.description
+                        'div',
+                        { className: 'form-group' },
+                        _react2.default.createElement(
+                            'label',
+                            { htmlFor: 'inputTxtAreaTaskDesc' },
+                            'Task Description'
+                        ),
+                        _react2.default.createElement('textarea', { className: 'form-control col-md-12', name: 'editordata', rows: '5', cols: '50',
+                            id: 'inputTxtAreaTaskDesc',
+                            placeholder: 'Enter task description',
+                            ref: function ref(description) {
+                                return _this2.description = description;
+                            },
+                            onChange: this.handleChange.bind(this),
+                            value: this.state.description
 
-                    })
+                        })
+                    ),
+                    _react2.default.createElement(
+                        'div',
+                        { className: 'text-right' },
+                        _react2.default.createElement(
+                            'button',
+                            { type: 'submit', onClick: this.handleSubmit, className: 'btn btn-primary' },
+                            'Submit'
+                        )
+                    )
                 ),
                 _react2.default.createElement(
                     'button',
-                    { type: 'submit', onClick: this.handleSubmit, className: 'btn btn-primary' },
-                    'Submit'
+                    { onClick: this.setWeekends, className: 'btn btn-primary' },
+                    'Weekends'
                 )
             );
         }
@@ -25208,7 +25255,11 @@ var TodoList = exports.TodoList = function TodoList(props) {
         );
     }
 
-    return todoNode;
+    return _react2.default.createElement(
+        'ul',
+        null,
+        todoNode
+    );
 };
 
 /***/ }),

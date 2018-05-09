@@ -47,5 +47,5 @@ export const TodoList = (props) => {
             )
     }
 
-    return todoNode;
+    return <ul>{todoNode}</ul>;
 }
