@@ -43,6 +43,7 @@ app.post('/api/addTodo', function (req, res) {
         isDone: req.body.isDone,
         description: req.body.description,
         dateCreated: req.body.dateCreated,
+        dateUpdated: new Date(),
         today: new Date()
     };
 
@@ -58,7 +59,7 @@ app.post('/api/addTodo', function (req, res) {
 
 app.put('/api/updateTodo', function (req, res) {
     // Set an existing field's value
-    db.update({ _id: req.body.id }, { $set: { title: req.body.title, description: req.body.description } }, { multi: false }, function (err, numReplaced) {
+    db.update({ _id: req.body.id }, { $set: { title: req.body.title, description: req.body.description, dateCreated: req.body.dateCreated, dateUpdated: new Date() } }, { multi: false }, function (err, numReplaced) {
         db.find({ _id: req.body.id }).sort({ today: -1 }).exec(function (err, docs) {
             if (err) {
                 return err;

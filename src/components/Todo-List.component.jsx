@@ -29,7 +29,9 @@ const SingleTodo = (props) => {
             <button className="btn btn-danger float-right" onClick={() => { props.remove(props.todo._id, props.todo.today.split("T")[0].replace(/-/g, ",")) }}>Delete</button>
             <button className="btn btn-primary float-right" onClick={() => { props.edit(props.todo._id) }}>Edit</button>
             <div dangerouslySetInnerHTML={createMarkup(props.todo.description)}></div>
-            <p>Date Created :<span>{props.todo.today.split("T")[0]}</span></p>
+            <p>Task Due Date :<span>{props.todo.dateCreated}</span></p>
+            <p>Task Created :<span>{props.todo.today.split("T")[0].replace(/-/g, "-")}</span></p>
+            <p>Last Modified Date :<span>{props.todo.dateUpdated}</span></p>
         </li>);
 }
 

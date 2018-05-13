@@ -46,6 +46,7 @@ export class TodoApp extends React.Component {
         this.visibilityFilters = ["ALL_TODOS", "ACTIVE_TODOS", "COMPLETED_TODOS"];
         this.state = {
             data: {},
+            initialData: {},
             isEditing: false,
             editTodo: {},
             visibilityFilter: "ALL_TODOS",
@@ -60,7 +61,7 @@ export class TodoApp extends React.Component {
                 console.log(data);
                 let newData = this.groupTodosByDate(data);
                 // console.log("New Data :", newData, data);
-                this.setState({ data: newData, todoCount: data.length });
+                this.setState({ data: newData, todoCount: data.length, initialData: newData });
             })
             .catch((err) => {
                 console.log('Error in fetching all reacords', err);
@@ -68,10 +69,10 @@ export class TodoApp extends React.Component {
     }
 
     // Add Todo item
-    addTodo(value, description, id) {
+    addTodo(value, description, id, dateCreated) {
         if (id) {
             // if Edit Mode on : Update data
-            this.props.todoService.addUpdateTodo('./api/updateTodo', 'PUT', { id: id, title: value, status: 'pending', isDone: false, description: description, dateCreated : Date.now() })
+            this.props.todoService.addUpdateTodo('./api/updateTodo', 'PUT', { id: id, title: value, status: 'pending', isDone: false, description: description, dateCreated: dateCreated })
                 .then((data) => {
                     Object.keys(this.state.data).map((date) => {
                         this.state.data[date].find((todo, index) => {
@@ -88,7 +89,7 @@ export class TodoApp extends React.Component {
 
             this.setState({ isEditing: false, editTodo: {} });
         } else {
-            let formData = { title: value, status: 'pending', isDone: false, description: description , dateCreated : Date.now()};
+            let formData = { title: value, status: 'pending', isDone: false, description: description, dateCreated: dateCreated };
             // Else Edit mode Off : Only Add new record
             this.props.todoService.addUpdateTodo('./api/addTodo', 'POST', formData)
                 .then((data) => {
@@ -274,6 +275,24 @@ export class TodoApp extends React.Component {
         this.setState({ visibilityFilter: visibilityFilter });
     }
 
+    filterList(event) {
+        let filteredData = {};
+
+        Object.keys(this.state.initialData).map(date => {
+            this.state.initialData[date].filter(todo => {
+                if (todo.title.toLowerCase().search(event.target.value.toLowerCase()) !== -1) {
+                    if (filteredData.hasOwnProperty(date)) {
+                        filteredData[date].push(todo);
+                    } else {
+                        filteredData[date] = [todo];
+                    }
+                }
+            })
+        });
+
+        this.setState({ data: filteredData });
+    }
+
     render() {
 
         let visibleTodosArray = this.visibleTodos();
@@ -283,6 +302,7 @@ export class TodoApp extends React.Component {
                 <Header />
 
                 <div className="container">
+                    <input type="text" className="form-control col-md-12 add-form" placeholder="Search" onChange={this.filterList.bind(this)} />
                     <Title todoCount={this.state.todoCount} />
                     <TodoForm isEditing={this.state.isEditing} editTodo={this.state.editTodo} addTodo={this.addTodo.bind(this)} />
                     <h3 className="text-center">{this.state.visibilityFilter.replace('_', ' ')}</h3>
