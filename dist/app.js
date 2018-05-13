@@ -719,10 +719,10 @@ var TodoForm = function (_React$Component) {
 
         var _this = _possibleConstructorReturn(this, (TodoForm.__proto__ || Object.getPrototypeOf(TodoForm)).call(this, props));
 
-        _this.state = { title: '', description: '', isWeekend: false, dueDate: new Date().toISOString().substr(0, 10) };
+        _this.state = { title: '', description: '', dueDate: new Date().toISOString().substr(0, 10) };
         _this.input;
+        _this.handleChange = _this.handleChange.bind(_this);
         _this.handleSubmit = _this.handleSubmit.bind(_this);
-        _this.setWeekends = _this.setWeekends.bind(_this);
         return _this;
     }
 
@@ -732,7 +732,10 @@ var TodoForm = function (_React$Component) {
             $('#inputTxtAreaTaskDesc').summernote({
                 placeholder: 'Hello stand alone ui',
                 tabsize: 4,
-                height: 200
+                height: 200,
+                callbacks: {
+                    onChange: function onChange(contents, $editable) {}
+                }
                 /* toolbar: [
                     // [groupName, [list of button]]
                     ['style', ['bold', 'italic', 'underline', 'clear']],
@@ -745,22 +748,23 @@ var TodoForm = function (_React$Component) {
             });
         }
     }, {
-        key: 'setWeekends',
-        value: function setWeekends() {
-            this.props.addTodo("Weekends", "Saturday", '');
-            this.props.addTodo("Weekends", "Sunday", '');
-        }
-    }, {
         key: 'handleChange',
         value: function handleChange(event) {
+            console.log('Handle change :', event.target, event.target.name, event.target.value);
             this.setState({
                 title: this.title.value,
                 description: $(this.description).summernote('code'),
-                isWeekend: !this.state.isWeekend,
                 dueDate: this.dueDate.value
             });
-            console.log(this.state);
         }
+
+        /* handleChange(evt) {
+            // Ref : https://medium.com/@tmkelly28/handling-multiple-form-inputs-in-react-c5eb83755d15
+            // check it out: we get the evt.target.name (which will be either "email" or "password")
+            // and use it to target the key on our `state` object with the same name, using bracket syntax
+            this.setState({ [evt.target.name]: evt.target.value });
+        } */
+
     }, {
         key: 'componentWillReceiveProps',
         value: function componentWillReceiveProps(nextProps) {
@@ -799,9 +803,7 @@ var TodoForm = function (_React$Component) {
             if (this.props.isEditing) {
                 this.props.addTodo(this.title.value, this.senitizeInnerHtml(this.description.value), this.props.editTodo._id, this.dueDate.value);
             } else {
-                if (this.state.isWeekend) {} else {
-                    this.props.addTodo(this.state.title, this.senitizeInnerHtml(this.description.value), '', this.dueDate.value);
-                }
+                this.props.addTodo(this.state.title, this.senitizeInnerHtml(this.description.value), '', this.dueDate.value);
             }
 
             this.setState({ title: '', description: '' });
@@ -874,13 +876,15 @@ var TodoForm = function (_React$Component) {
                             { htmlFor: 'inputTxtTaskTitle' },
                             'Task Title'
                         ),
-                        _react2.default.createElement('input', { className: 'form-control col-md-12 add-form',
+                        _react2.default.createElement('input', { type: 'text',
+                            name: 'taskTitle',
+                            className: 'form-control col-md-12 add-form',
                             id: 'inputTxtTaskTitle',
                             placeholder: 'Enter task title',
                             ref: function ref(title) {
                                 return _this2.title = title;
                             },
-                            onChange: this.handleChange.bind(this),
+                            onChange: this.handleChange,
                             value: this.state.title
                         })
                     ),
@@ -893,12 +897,13 @@ var TodoForm = function (_React$Component) {
                             'Task Due Date'
                         ),
                         _react2.default.createElement('input', { type: 'date',
+                            name: 'dueDate',
                             className: 'form-control col-md-12',
                             id: 'inputTxtDueDate',
                             ref: function ref(dueDate) {
                                 return _this2.dueDate = dueDate;
                             },
-                            onChange: this.handleChange.bind(this),
+                            onChange: this.handleChange,
                             value: this.state.dueDate
                         })
                     ),
@@ -916,7 +921,7 @@ var TodoForm = function (_React$Component) {
                             ref: function ref(description) {
                                 return _this2.description = description;
                             },
-                            onChange: this.handleChange.bind(this),
+                            onChange: this.handleChange,
                             value: this.state.description
 
                         })
@@ -930,11 +935,6 @@ var TodoForm = function (_React$Component) {
                             'Submit'
                         )
                     )
-                ),
-                _react2.default.createElement(
-                    'button',
-                    { onClick: this.setWeekends, className: 'btn btn-primary' },
-                    'Weekends'
                 )
             );
         }
@@ -1102,7 +1102,7 @@ var SingleTodo = function SingleTodo(props) {
         _react2.default.createElement(
             'label',
             { htmlFor: 'todoStatus_' + props.todo._id },
-            _react2.default.createElement('input', { name: 'todoStatus[]', id: 'todoStatus_' + props.todo._id, type: 'checkbox', value: props.todo._id, onChange: toggleTodoStatus.bind(undefined), checked: props.todo.isDone }),
+            _react2.default.createElement('input', { name: 'todoStatus[]', id: 'todoStatus_' + props.todo._id, type: 'checkbox', value: props.todo._id, onChange: toggleTodoStatus, checked: props.todo.isDone }),
             ' ',
             props.todo.title,
             ' ',

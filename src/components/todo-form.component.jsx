@@ -4,10 +4,10 @@ export default class TodoForm extends React.Component {
     // Input Tracker
     constructor(props) {
         super(props);
-        this.state = { title: '', description: '', isWeekend: false, dueDate: new Date().toISOString().substr(0, 10) };
+        this.state = { title: '', description: '', dueDate: new Date().toISOString().substr(0, 10) };
         this.input;
+        this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
-        this.setWeekends = this.setWeekends.bind(this);
     }
 
     componentDidMount() {
@@ -15,6 +15,11 @@ export default class TodoForm extends React.Component {
             placeholder: 'Hello stand alone ui',
             tabsize: 4,
             height: 200,
+            callbacks: {
+                onChange: function (contents, $editable) {
+
+                }
+            },
             /* toolbar: [
                 // [groupName, [list of button]]
                 ['style', ['bold', 'italic', 'underline', 'clear']],
@@ -27,20 +32,21 @@ export default class TodoForm extends React.Component {
         });
     }
 
-    setWeekends() {
-        this.props.addTodo("Weekends", "Saturday", '');
-        this.props.addTodo("Weekends", "Sunday", '');
-    }
-
     handleChange(event) {
+        console.log('Handle change :', event.target, event.target.name, event.target.value);
         this.setState({
             title: this.title.value,
             description: $(this.description).summernote('code'),
-            isWeekend: !this.state.isWeekend,
             dueDate: this.dueDate.value
         })
-        console.log(this.state)
     }
+
+    /* handleChange(evt) {
+        // Ref : https://medium.com/@tmkelly28/handling-multiple-form-inputs-in-react-c5eb83755d15
+        // check it out: we get the evt.target.name (which will be either "email" or "password")
+        // and use it to target the key on our `state` object with the same name, using bracket syntax
+        this.setState({ [evt.target.name]: evt.target.value });
+    } */
 
     componentWillReceiveProps(nextProps) {
         if (Object.keys(nextProps.editTodo).length === 0 && nextProps.editTodo.constructor === Object) {
@@ -80,11 +86,7 @@ export default class TodoForm extends React.Component {
         if (this.props.isEditing) {
             this.props.addTodo(this.title.value, this.senitizeInnerHtml(this.description.value), this.props.editTodo._id, this.dueDate.value);
         } else {
-            if (this.state.isWeekend) {
-
-            } else {
-                this.props.addTodo(this.state.title, this.senitizeInnerHtml(this.description.value), '', this.dueDate.value);
-            }
+            this.props.addTodo(this.state.title, this.senitizeInnerHtml(this.description.value), '', this.dueDate.value);
         }
 
         this.setState({ title: '', description: '' });
@@ -126,11 +128,13 @@ export default class TodoForm extends React.Component {
 
                     <div className="form-group">
                         <label htmlFor="inputTxtTaskTitle">Task Title</label>
-                        <input className="form-control col-md-12 add-form"
+                        <input type="text"
+                            name="taskTitle"
+                            className="form-control col-md-12 add-form"
                             id="inputTxtTaskTitle"
                             placeholder="Enter task title"
                             ref={(title) => this.title = title}
-                            onChange={this.handleChange.bind(this)}
+                            onChange={this.handleChange}
                             value={this.state.title}
                         />
 
@@ -138,10 +142,11 @@ export default class TodoForm extends React.Component {
                     <div className="form-group">
                         <label htmlFor="inputTxtDueDate">Task Due Date</label>
                         <input type="date"
+                            name="dueDate"
                             className="form-control col-md-12"
                             id="inputTxtDueDate"
                             ref={(dueDate) => this.dueDate = dueDate}
-                            onChange={this.handleChange.bind(this)}
+                            onChange={this.handleChange}
                             value={this.state.dueDate}
                         />
 
@@ -152,7 +157,7 @@ export default class TodoForm extends React.Component {
                             id="inputTxtAreaTaskDesc"
                             placeholder="Enter task description"
                             ref={(description) => this.description = description}
-                            onChange={this.handleChange.bind(this)}
+                            onChange={this.handleChange}
                             value={this.state.description}
 
                         ></textarea>
@@ -164,7 +169,7 @@ export default class TodoForm extends React.Component {
                         <button type="submit" className="btn btn-primary">Submit</button>
                     </div>
                 </form>
-                <button onClick={this.setWeekends} className="btn btn-primary">Weekends</button>
+
             </div>
         );
     }
