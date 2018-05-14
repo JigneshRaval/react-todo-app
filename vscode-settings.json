@@ -1,0 +1,74 @@
+// Place your settings in this file to overwrite the default settings
+{
+    "files.associations": {
+        "*.tpl": "html",
+        "*.ts": "typescript"
+    },
+    "editor.formatOnType": true,
+    "editor.formatOnPaste": false,
+    "editor.wordWrap": "on",
+    "editor.minimap.enabled": true,
+    "editor.renderIndentGuides": true,
+    "editor.scrollBeyondLastLine": false,
+    "editor.tabSize": 4,
+    "editor.fontSize": 16,
+    "editor.fontFamily": "Consolas, 'Courier New', monospace",
+    "editor.tokenColorCustomizations": {
+        "comments": "#009800",
+        "numbers": "#FF0000"
+    },
+    "[scss]": {
+        "editor.insertSpaces": true,
+        "editor.tabSize": 4
+    },
+    "[css]": {
+        "editor.insertSpaces": true,
+        "editor.tabSize": 4
+    },
+    "[typescript]": {
+        "editor.insertSpaces": true,
+        "editor.tabSize": 4
+    },
+    "[javascript]": {
+        "editor.insertSpaces": true,
+        "editor.tabSize": 4
+    },
+    "[vue]": {
+        "editor.insertSpaces": true,
+        "editor.tabSize": 4
+    },
+    "[vue-html]": {
+        "editor.insertSpaces": true,
+        "editor.tabSize": 4
+    },
+    "git.path": "C:\\Users\\A0707515\\AppData\\Local\\GitHub\\PortableGit_f02737a78695063deace08e96d5042710d3e32db\\cmd\\git.exe",
+    "files.insertFinalNewline": true,
+    "files.trimTrailingWhitespace": true,
+    "window.menuBarVisibility": "default",
+    "workbench.colorTheme": "Ayu Mirage",
+    //"javascript.referencesCodeLens.enabled": true,
+    //"typescript.referencesCodeLens.enabled": true,
+    "tslint.jsEnable": true,
+    "tslint.run": "onSave",
+    "workbench.iconTheme": "vscode-icons",
+    "vsicons.projectDetection.autoReload": true,
+    //"git.autofetch": true,
+    "workbench.startupEditor": "newUntitledFile",
+    "workbench.colorCustomizations": {
+        "tab.inactiveForeground": "#FFF",
+        "editorLineNumber.foreground": "#888",
+        "editorLineNumber.activeForeground": "#FFF",
+        "editor.findMatchBorder": "#FFF",
+        "editorBracketMatch.border": "#FFF",
+        "editorIndentGuide.activeBackground": "#94f880",
+        "editor.selectionBackground": "#ccc6c67c",
+        "editor.wordHighlightBackground": "#67f8548e"
+    },
+    "editor.accessibilitySupport": "off",
+    "beautify.language": {
+        "css": [
+            "css",
+            "scss"
+        ]
+    }
+}
