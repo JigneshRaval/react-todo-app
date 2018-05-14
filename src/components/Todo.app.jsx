@@ -246,7 +246,7 @@ export class TodoApp extends React.Component {
         let visibleTodosArray = this.visibleTodos();
         return (
             <main>
-                <div className="container">
+                <div className="uk-padding">
 
                     <SearchTodoItem data={this.state.data} initialData={this.state.initialData} updateFilter={this.handleFilterUpdate} />
 

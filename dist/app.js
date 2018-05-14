@@ -935,6 +935,8 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.HomeView = undefined;
 
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
 var _react = __webpack_require__(0);
 
 var _react2 = _interopRequireDefault(_react);
@@ -949,65 +951,87 @@ var _Todo3 = _interopRequireDefault(_Todo2);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
 var todoService = new _Todo3.default();
 
-var HomeView = exports.HomeView = function HomeView() {
+var HomeView = exports.HomeView = function (_React$Component) {
+    _inherits(HomeView, _React$Component);
 
-    return _react2.default.createElement(
-        'div',
-        { className: 'container-fluid' },
-        _react2.default.createElement(
-            'div',
-            { id: 'offcanvas-overlay', 'uk-offcanvas': 'overlay: false' },
-            _react2.default.createElement(
+    function HomeView() {
+        _classCallCheck(this, HomeView);
+
+        return _possibleConstructorReturn(this, (HomeView.__proto__ || Object.getPrototypeOf(HomeView)).apply(this, arguments));
+    }
+
+    _createClass(HomeView, [{
+        key: 'render',
+        value: function render() {
+            return _react2.default.createElement(
                 'div',
-                { className: 'uk-offcanvas-bar' },
-                _react2.default.createElement('button', { className: 'uk-offcanvas-close', type: 'button', 'uk-close': '' }),
+                { className: 'container-fluid' },
                 _react2.default.createElement(
-                    'h3',
-                    null,
-                    'Title'
-                ),
-                _react2.default.createElement(
-                    'p',
-                    null,
-                    'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.'
-                )
-            )
-        ),
-        _react2.default.createElement(_Header.Header, null),
-        _react2.default.createElement(
-            'div',
-            { 'uk-grid': '' },
-            _react2.default.createElement(
-                'div',
-                { className: 'uk-width-1-4@m' },
-                _react2.default.createElement(
-                    'nav',
-                    { className: 'sidebar-nav' },
+                    'div',
+                    { id: 'offcanvas-overlay', 'uk-offcanvas': 'overlay: false' },
                     _react2.default.createElement(
-                        'ul',
-                        null,
+                        'div',
+                        { className: 'uk-offcanvas-bar' },
+                        _react2.default.createElement('button', { className: 'uk-offcanvas-close', type: 'button', 'uk-close': '' }),
                         _react2.default.createElement(
-                            'li',
+                            'h3',
                             null,
-                            _react2.default.createElement(
-                                'a',
-                                { href: '' },
-                                'Completed'
-                            )
+                            'Title'
+                        ),
+                        _react2.default.createElement(
+                            'p',
+                            null,
+                            'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.'
                         )
                     )
+                ),
+                _react2.default.createElement(_Header.Header, null),
+                _react2.default.createElement(
+                    'div',
+                    { 'uk-grid': '' },
+                    _react2.default.createElement(
+                        'div',
+                        { className: 'uk-width-1-4@m' },
+                        _react2.default.createElement(
+                            'nav',
+                            { className: 'sidebar-nav' },
+                            _react2.default.createElement(
+                                'ul',
+                                null,
+                                _react2.default.createElement(
+                                    'li',
+                                    null,
+                                    _react2.default.createElement(
+                                        'a',
+                                        { href: '' },
+                                        'Completed'
+                                    )
+                                )
+                            )
+                        )
+                    ),
+                    _react2.default.createElement(
+                        'div',
+                        { className: 'uk-width-expand@m' },
+                        _react2.default.createElement(_Todo.TodoApp, { todoService: todoService })
+                    )
                 )
-            ),
-            _react2.default.createElement(
-                'div',
-                { className: 'uk-width-expand@m' },
-                _react2.default.createElement(_Todo.TodoApp, { todoService: todoService })
-            )
-        )
-    );
-};
+            );
+        }
+    }]);
+
+    return HomeView;
+}(_react2.default.Component);
+
+;
 
 /***/ }),
 
@@ -1334,7 +1358,7 @@ var TodoApp = exports.TodoApp = function (_React$Component) {
                 null,
                 _react2.default.createElement(
                     'div',
-                    { className: 'container' },
+                    { className: 'uk-padding' },
                     _react2.default.createElement(_SearchTodo.SearchTodoItem, { data: this.state.data, initialData: this.state.initialData, updateFilter: this.handleFilterUpdate }),
                     _react2.default.createElement(_TodoTitle.Title, { todoCount: this.state.todoCount }),
                     _react2.default.createElement(_TodoForm2.default, { isEditing: this.state.isEditing, editTodo: this.state.editTodo, addTodo: this.addTodo.bind(this) }),
