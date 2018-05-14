@@ -1,0 +1,12 @@
+.uk-accordion-title,
+.uk-accordion-content {
+    padding: 1em;
+}
+
+.uk-navbar-container:not(.uk-navbar-transparent) {
+    background: linear-gradient(to left, #28a5f5, #1e87f0);
+}
+.uk-navbar-item,
+.uk-navbar-nav>li>a {
+    color: #FFF;
+}

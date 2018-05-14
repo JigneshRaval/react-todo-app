@@ -126,48 +126,55 @@ export default class TodoForm extends React.Component {
                 this.input.value = '';
             }}>*/}
 
-                    <div className="form-group">
-                        <label htmlFor="inputTxtTaskTitle">Task Title</label>
-                        <input type="text"
-                            name="taskTitle"
-                            className="form-control col-md-12 add-form"
-                            id="inputTxtTaskTitle"
-                            placeholder="Enter task title"
-                            ref={(title) => this.title = title}
-                            onChange={this.handleChange}
-                            value={this.state.title}
-                        />
+                    <fieldset className="uk-fieldset">
+                        <legend className="uk-legend">Add Task</legend>
 
-                    </div>
-                    <div className="form-group">
-                        <label htmlFor="inputTxtDueDate">Task Due Date</label>
-                        <input type="date"
-                            name="dueDate"
-                            className="form-control col-md-12"
-                            id="inputTxtDueDate"
-                            ref={(dueDate) => this.dueDate = dueDate}
-                            onChange={this.handleChange}
-                            value={this.state.dueDate}
-                        />
+                        <div className="uk-margin">
+                            <label htmlFor="inputTxtTaskTitle">Task Title</label>
+                            <input type="text"
+                                name="taskTitle"
+                                className="uk-input"
+                                id="inputTxtTaskTitle"
+                                placeholder="Enter task title"
+                                ref={(title) => this.title = title}
+                                onChange={this.handleChange}
+                                value={this.state.title}
+                            />
+                        </div>
 
-                    </div>
-                    <div className="form-group">
-                        <label htmlFor="inputTxtAreaTaskDesc">Task Description</label>
-                        <textarea className="form-control col-md-12" name="editordata" rows="5" cols="50"
-                            id="inputTxtAreaTaskDesc"
-                            placeholder="Enter task description"
-                            ref={(description) => this.description = description}
-                            onChange={this.handleChange}
-                            value={this.state.description}
+                        <div className="uk-margin">
+                            <label htmlFor="inputTxtDueDate">Task Due Date</label>
+                            <input type="date"
+                                name="dueDate"
+                                className="uk-input"
+                                id="inputTxtDueDate"
+                                ref={(dueDate) => this.dueDate = dueDate}
+                                onChange={this.handleChange}
+                                value={this.state.dueDate}
+                            />
+                        </div>
 
-                        ></textarea>
-                    </div>
-                    {/* <div className="form-group">
+                        <div className="uk-margin">
+                            <label htmlFor="inputTxtAreaTaskDesc">Task Description</label>
+                            <textarea className="uk-input"
+                                name="editordata"
+                                rows="5"
+                                cols="50"
+                                id="inputTxtAreaTaskDesc"
+                                placeholder="Enter task description"
+                                ref={(description) => this.description = description}
+                                onChange={this.handleChange}
+                                value={this.state.description}
+                            ></textarea>
+                        </div>
+
+                        {/* <div className="form-group">
                         <input type="checkbox" onChange={this.handleChange.bind(this)} />
                     </div> */}
-                    <div className="text-right">
-                        <button type="submit" className="btn btn-primary">Submit</button>
-                    </div>
+                        <div className="text-right">
+                            <button type="submit" className="uk-button uk-button-primary">Submit</button>
+                        </div>
+                    </fieldset>
                 </form>
 
             </div>

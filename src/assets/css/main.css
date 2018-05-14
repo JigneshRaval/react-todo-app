@@ -1,0 +1,17 @@
+body {
+    font-family: 'Open Sans', sans-serif;
+    font-family: 'Roboto', sans-serif;
+}
+
+.btn {
+    margin-right: 10px;
+}
+
+.done {
+    background-color: #EEE;
+}
+
+.app-title {
+    margin: 0;
+    font-weight: bold;
+}

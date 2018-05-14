@@ -22,25 +22,31 @@ const SingleTodo = (props) => {
     // Each Todo
     return (
         <li className={"list-group-item " + (props.todo.isDone ? "done" : "")}>
-            <label htmlFor={'todoStatus_' + props.todo._id}>
-                <input name="todoStatus[]" id={'todoStatus_' + props.todo._id} type="checkbox" value={props.todo._id} onChange={toggleTodoStatus} checked={props.todo.isDone} /> {props.todo.title} <span className={"badge " + (props.todo.isDone ? 'badge-success' : 'badge-primary')}>{props.todo.status}</span>
-            </label>
+            <a className="uk-accordion-title uk-box-shadow-hover-small uk-padding" href="#">
+                <label htmlFor={'todoStatus_' + props.todo._id}>
+                    <input name="todoStatus[]" id={'todoStatus_' + props.todo._id} type="checkbox" value={props.todo._id} onChange={toggleTodoStatus} checked={props.todo.isDone} /> {props.todo.title} <span className={"uk-label " + (props.todo.isDone ? 'uk-label-success' : '')}>{props.todo.status}</span>
+                </label>
+            </a>
+            <div className="uk-accordion-content">
 
-            {/* Delete Record */}
-            <button className="btn btn-danger float-right" onClick={() => {
-                props.remove(props.todo._id, props.todo.today.split("T")[0].replace(/-/g, ","))
-            }}>Delete</button>
+                <div dangerouslySetInnerHTML={createMarkup(props.todo.description)}></div>
+                <p>Task Due Date :<span>{props.todo.dateCreated}</span></p>
+                <p>Task Created :<span>{props.todo.today.split("T")[0].replace(/-/g, "-")}</span></p>
+                <p>Last Modified Date :<span>{props.todo.dateUpdated}</span></p>
 
-            {/* Edit Record */}
-            <button className="btn btn-primary float-right" onClick={() => {
-                props.edit(props.todo._id)
-            }}>Edit</button>
+                {/* Edit Record */}
+                <button className="uk-button uk-button-primary" onClick={() => {
+                    props.edit(props.todo._id)
+                }}>Edit</button>
 
-            <div dangerouslySetInnerHTML={createMarkup(props.todo.description)}></div>
-            <p>Task Due Date :<span>{props.todo.dateCreated}</span></p>
-            <p>Task Created :<span>{props.todo.today.split("T")[0].replace(/-/g, "-")}</span></p>
-            <p>Last Modified Date :<span>{props.todo.dateUpdated}</span></p>
-        </li>);
+                {/* Delete Record */}
+                <button className="uk-button uk-button-danger" onClick={() => {
+                    props.remove(props.todo._id, props.todo.today.split("T")[0].replace(/-/g, ","))
+                }}>Delete</button>
+
+            </div>
+        </li>
+    );
 }
 
 
@@ -57,5 +63,5 @@ export const TodoList = (props) => {
             )
     }
 
-    return <ul>{todoNode}</ul>;
+    return <ul uk-accordion="collapsible: true">{todoNode}</ul>;
 }
