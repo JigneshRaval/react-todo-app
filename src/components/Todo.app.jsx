@@ -247,7 +247,7 @@ export class TodoApp extends React.Component {
         return (
             <main>
                 <div className="uk-padding">
-
+                    {this.props.isFormVisible}
                     <SearchTodoItem data={this.state.data} initialData={this.state.initialData} updateFilter={this.handleFilterUpdate} />
 
                     <Title todoCount={this.state.todoCount} />
