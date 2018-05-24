@@ -7,6 +7,21 @@ const todoService = new TodoService();
 
 export class HomeView extends React.Component {
 
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            isFormVisible: false,
+        }
+        this.toggleTodoForm = this.toggleTodoForm.bind(this);
+    }
+
+    toggleTodoForm() {
+        console.log(this.state.isFormVisible);
+        this.setState({ isFormVisible: !this.state.isFormVisible });
+        console.log(this.state.isFormVisible);
+    }
+
     render() {
         return (
             <div className="container-fluid">
@@ -22,18 +37,20 @@ export class HomeView extends React.Component {
 
                     </div>
                 </div>
+
                 <Header />
 
                 <div uk-grid="">
-                    <div className="uk-width-1-4@m">
-                        <nav className="sidebar-nav">
+                    <div className="uk-width-1-4@m sidebar-nav">
+                        <nav className="">
                             <ul>
-                                <li><a href="">Completed</a></li>
+                                <li><a onClick={this.toggleTodoForm}>Add New Task </a></li>
+                                <li><a href="">Completed {this.state.isFormVisible}</a></li>
                             </ul>
                         </nav>
                     </div>
                     <div className="uk-width-expand@m">
-                        <TodoApp todoService={todoService} />
+                        <TodoApp todoService={todoService} isFormVisible={this.state.isFormVisible} />
                     </div>
                 </div>
             </div>
