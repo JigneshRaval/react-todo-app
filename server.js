@@ -114,3 +114,34 @@ app.use(function (error, req, res, next) {
 app.listen(port, function () {
     console.log(`Server is listening at http://localhost:${port}/`);
 });
+
+
+/*
+// server.js
+// =====================================
+
+// A simple node server using express.js to serve static files and content
+
+const express = require('express');
+const path = require('path');
+
+const port = process.env.PORT || 3000;
+const app = express();
+
+// SET A FOLDER LOCATION FOR ANGULAR APP TO SERVE STATIC JS, CSS, IMAGES OTHER FILES
+app.use(express.static(path.join(__dirname + '/dist/app1/')));
+
+
+// 404 catch
+app.get('*', (req, res) => {
+	console.log("DIR :", __dirname);
+	console.log(`[TRACE] Server 404 request: ${req.originalUrl}`);
+
+	res.status(200).sendFile(path.join(__dirname + '/dist/app1/' + 'index.html'));
+
+});
+
+app.listen(port, function () {
+	console.log(`Server is listening at http://localhost:${port}/`);
+});
+ */
